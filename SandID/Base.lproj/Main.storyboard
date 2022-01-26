@@ -16,27 +16,22 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3b7-Hy-PKL">
-                                <rect key="frame" x="152" y="407" width="110" height="31"/>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cKd-8Y-tuL">
+                                <rect key="frame" x="132" y="433" width="150" height="31"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Open camera"/>
                                 <connections>
-                                    <segue destination="kmc-0S-k0Z" kind="show" identifier="OpenCameraSegue" id="iMu-6T-SzN"/>
+                                    <segue destination="kmc-0S-k0Z" kind="presentation" identifier="OpenCameraSegue" modalPresentationStyle="fullScreen" id="QGx-hN-OSR"/>
                                 </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="3b7-Hy-PKL" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="8Is-Ff-hcH"/>
-                            <constraint firstItem="3b7-Hy-PKL" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="319" id="csO-UJ-2cc"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="3b7-Hy-PKL" secondAttribute="bottom" constant="424" id="lSt-tO-3JC"/>
-                            <constraint firstItem="3b7-Hy-PKL" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="152" id="pHD-Xm-2mN"/>
-                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="OE1-QR-vIT"/>
                     <connections>
-                        <outlet property="openCameraButton" destination="3b7-Hy-PKL" id="Yh5-ss-VcH"/>
+                        <outlet property="openCameraButton" destination="cKd-8Y-tuL" id="sqg-CX-Y7u"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

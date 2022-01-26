@@ -11,7 +11,7 @@ import AVFoundation
 
 class ViewController: UIViewController {
 
-	@IBOutlet weak var openCameraButton: UIButton!
+	@IBOutlet var openCameraButton: UIButton!
 	
 	
 	override func viewDidLoad() {

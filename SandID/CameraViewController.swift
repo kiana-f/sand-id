@@ -10,6 +10,8 @@ import AVFoundation
 
 class CameraViewController: UIViewController {
 	
+	@IBOutlet weak var topNavControl: UINavigationItem!
+	
 	var delegate: UIViewController!
 	
 	// capture session
@@ -21,6 +23,9 @@ class CameraViewController: UIViewController {
 	// preview
 	let previewLayer = AVCaptureVideoPreviewLayer()
 	
+	// image view to hold captured image
+	var imageView = UIImageView()
+	
 	// shutter button
 	private let shutterButton: UIButton = {
 		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
@@ -28,6 +33,13 @@ class CameraViewController: UIViewController {
 		button.layer.cornerRadius = 50
 		button.layer.borderWidth = 10
 		button.layer.borderColor = UIColor.white.cgColor
+		return button
+	}()
+	
+	// button to retake photo
+	private let retakeButton: UIButton = {
+		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 50))
+		button.setTitle("Retake", for: .normal)
 		return button
 	}()
 
@@ -45,15 +57,19 @@ class CameraViewController: UIViewController {
 		
 		checkCameraPermissions()
 		shutterButton.addTarget(self, action: #selector(didTapTakePhoto), for: .touchUpInside)
+		retakeButton.addTarget(self, action: #selector(tapRetakePhoto), for: .touchUpInside)
     }
 	
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		previewLayer.frame = view.bounds
 		
-		// button shape
+		// shutter button shape
 		shutterButton.center = CGPoint(x: view.frame.size.width/2,
 									   y: view.frame.size.height - 100)
+		
+		retakeButton.center = CGPoint(x: 50, y: 100)
+
 	}
 	
 	// camera permissions
@@ -117,18 +133,15 @@ class CameraViewController: UIViewController {
 	@objc private func didTapTakePhoto() {
 		output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
 	}
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+	
+	// remove image view and starts new capture session
+	@objc private func tapRetakePhoto() {
+		topNavControl.hidesBackButton = false
+		retakeButton.removeFromSuperview()
+		imageView.removeFromSuperview()
+		self.session?.startRunning()
+	}
+	
 }
 
 extension CameraViewController: AVCapturePhotoCaptureDelegate {
@@ -143,9 +156,11 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 		
 		session?.stopRunning()
 		
-		let imageView = UIImageView(image: image)
+		imageView = UIImageView(image: image)
 		imageView.contentMode = .scaleAspectFill
 		imageView.frame = view.bounds
+		topNavControl.hidesBackButton = true
 		view.addSubview(imageView)
+		view.addSubview(retakeButton)
 	}
 }

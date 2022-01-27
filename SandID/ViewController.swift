@@ -19,7 +19,7 @@ class ViewController: UIViewController {
 		
 	}
 	
-	// segue
+	// segue preparation
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 		if segue.identifier == "OpenCameraSegue",
 		   let cameraVC = segue.destination as? CameraViewController {

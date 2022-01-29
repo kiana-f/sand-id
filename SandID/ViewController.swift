@@ -13,10 +13,10 @@ class ViewController: UIViewController {
 
 	@IBOutlet var openCameraButton: UIButton!
 	
+	var delegate: UIViewController!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
 	}
 	
 	// segue preparation

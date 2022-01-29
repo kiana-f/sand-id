@@ -10,8 +10,6 @@ import AVFoundation
 
 class CameraViewController: UIViewController {
 	
-	@IBOutlet weak var topNavControl: UINavigationItem!
-	
 	var delegate: UIViewController!
 	
 	// capture session
@@ -33,13 +31,35 @@ class CameraViewController: UIViewController {
 		button.layer.cornerRadius = 50
 		button.layer.borderWidth = 10
 		button.layer.borderColor = UIColor.white.cgColor
+		button.layer.shadowColor = UIColor.darkGray.cgColor
+		button.layer.shadowOpacity = 1.0
+		button.layer.shadowRadius = 50
 		return button
 	}()
 	
 	// button to retake photo
 	private let retakeButton: UIButton = {
-		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 50))
-		button.setTitle("Retake", for: .normal)
+		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+		let buttonImage = UIImage(systemName: "xmark")
+		let config = UIImage.SymbolConfiguration(pointSize: 20.0, weight: .bold, scale: .large)
+		button.setImage(buttonImage?.withConfiguration(config), for: .normal)
+		button.tintColor = UIColor.white
+		button.layer.shadowColor = UIColor.black.cgColor
+		button.layer.shadowOpacity = 1.0
+		button.layer.shadowRadius = 10
+		return button
+	}()
+	
+	// button to retake photo
+	private let backButton: UIButton = {
+		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+		let buttonImage = UIImage(systemName: "chevron.backward")
+		let config = UIImage.SymbolConfiguration(pointSize: 20.0, weight: .bold, scale: .large)
+		button.setImage(buttonImage?.withConfiguration(config), for: .normal)
+		button.tintColor = UIColor.white
+		button.layer.shadowColor = UIColor.black.cgColor
+		button.layer.shadowOpacity = 1.0
+		button.layer.shadowRadius = 10
 		return button
 	}()
 
@@ -49,15 +69,14 @@ class CameraViewController: UIViewController {
 		// just incase
 		view.backgroundColor = .black
 		
-		// add preview layer
 		view.layer.addSublayer(previewLayer)
-		
-		// add shutter button to screen
 		view.addSubview(shutterButton)
+		view.addSubview(backButton)
 		
 		checkCameraPermissions()
 		shutterButton.addTarget(self, action: #selector(didTapTakePhoto), for: .touchUpInside)
 		retakeButton.addTarget(self, action: #selector(tapRetakePhoto), for: .touchUpInside)
+		backButton.addTarget(self, action: #selector(onBackButton), for: .touchUpInside)
     }
 	
 	override func viewDidLayoutSubviews() {
@@ -68,14 +87,13 @@ class CameraViewController: UIViewController {
 		shutterButton.center = CGPoint(x: view.frame.size.width/2,
 									   y: view.frame.size.height - 100)
 		
-		retakeButton.center = CGPoint(x: 50, y: 100)
-
+		retakeButton.center = CGPoint(x: 50, y: 75)
+		backButton.center = CGPoint(x: 50, y: 75)
 	}
 	
 	// camera permissions
 	private func checkCameraPermissions() {
 		switch AVCaptureDevice.authorizationStatus(for: .video) {
-			
 		case .notDetermined:
 			// request permission
 			print("Requesting permission")
@@ -100,7 +118,6 @@ class CameraViewController: UIViewController {
 		@unknown default:
 			break
 		}
-		
 	}
 	
 	// camera input and output from device
@@ -136,10 +153,16 @@ class CameraViewController: UIViewController {
 	
 	// remove image view and starts new capture session
 	@objc private func tapRetakePhoto() {
-		topNavControl.hidesBackButton = false
+		print("tapped retake photo button")
 		retakeButton.removeFromSuperview()
 		imageView.removeFromSuperview()
+		view.addSubview(backButton)
 		self.session?.startRunning()
+	}
+	
+	@objc private func onBackButton() {
+		print("tapped back button")
+		self.dismiss(animated: true, completion: nil)
 	}
 	
 }
@@ -159,7 +182,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 		imageView = UIImageView(image: image)
 		imageView.contentMode = .scaleAspectFill
 		imageView.frame = view.bounds
-		topNavControl.hidesBackButton = true
+		backButton.removeFromSuperview()
 		view.addSubview(imageView)
 		view.addSubview(retakeButton)
 	}

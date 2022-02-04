@@ -11,7 +11,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="SandID" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalPresentationStyle="fullScreen" id="BYZ-38-t0r" customClass="ViewController" customModule="SandID" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -20,9 +20,9 @@
                                 <rect key="frame" x="132" y="433" width="150" height="31"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Open camera"/>
+                                <buttonConfiguration key="configuration" style="plain" image="chevron.backward" catalog="system" title="Open camera"/>
                                 <connections>
-                                    <segue destination="kmc-0S-k0Z" kind="presentation" identifier="OpenCameraSegue" modalPresentationStyle="fullScreen" id="QGx-hN-OSR"/>
+                                    <segue destination="kmc-0S-k0Z" kind="showDetail" identifier="OpenCameraSegue" id="QGx-hN-OSR"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -41,18 +41,19 @@
         <!--Camera View Controller-->
         <scene sceneID="ydz-vH-R5E">
             <objects>
-                <viewController id="kmc-0S-k0Z" customClass="CameraViewController" customModule="SandID" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalPresentationStyle="fullScreen" id="kmc-0S-k0Z" customClass="CameraViewController" customModule="SandID" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="w16-ao-Q0l">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="QYn-rb-fAN"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
                     <navigationItem key="navigationItem" id="iCJ-4V-vFf"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1rp-ra-xJY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1955" y="98"/>
+            <point key="canvasLocation" x="1953.6231884057972" y="97.767857142857139"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="KaG-Mx-LxG">
@@ -62,6 +63,7 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="fPh-aS-4eL">
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
@@ -74,6 +76,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="chevron.backward" catalog="system" width="96" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

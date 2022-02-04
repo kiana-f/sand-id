@@ -13,13 +13,13 @@ class ViewController: UIViewController {
 
 	@IBOutlet var openCameraButton: UIButton!
 	
+	var delegate: UIViewController!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
 	}
 	
-	// segue
+	// segue preparation
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 		if segue.identifier == "OpenCameraSegue",
 		   let cameraVC = segue.destination as? CameraViewController {

@@ -24,6 +24,9 @@ class CameraViewController: UIViewController {
 	// image view to hold captured image
 	var imageView = UIImageView()
 	
+	var cameraOverlayTop = UIView()
+	var cameraOverlayBottom = UIView()
+	
 	// shutter button
 	private let shutterButton: UIButton = {
 		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
@@ -65,15 +68,20 @@ class CameraViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+		
+		createOverlays()
 
 		// just incase
 		view.backgroundColor = .black
 		
 		view.layer.addSublayer(previewLayer)
+		view.addSubview(cameraOverlayTop)
+		view.addSubview(cameraOverlayBottom)
 		view.addSubview(shutterButton)
 		view.addSubview(backButton)
 		
 		checkCameraPermissions()
+		
 		shutterButton.addTarget(self, action: #selector(didTapTakePhoto), for: .touchUpInside)
 		retakeButton.addTarget(self, action: #selector(tapRetakePhoto), for: .touchUpInside)
 		backButton.addTarget(self, action: #selector(onBackButton), for: .touchUpInside)
@@ -89,6 +97,25 @@ class CameraViewController: UIViewController {
 		
 		retakeButton.center = CGPoint(x: 50, y: 75)
 		backButton.center = CGPoint(x: 50, y: 75)
+		cameraOverlayTop.center = CGPoint(x: self.view.frame.width / 2, y: cameraOverlayTop.frame.height / 2)
+		
+		cameraOverlayBottom.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height - (cameraOverlayTop.frame.height / 2))
+	}
+	
+	private func createOverlays() {
+		cameraOverlayTop = {
+			let overlay = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height / 4))
+			overlay.layer.opacity = 0.5
+			overlay.backgroundColor = .black
+			return overlay
+		}()
+		
+		cameraOverlayBottom = {
+			let overlay = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height / 4))
+			overlay.layer.opacity = 0.5
+			overlay.backgroundColor = .black
+			return overlay
+		}()
 	}
 	
 	// camera permissions
@@ -123,7 +150,7 @@ class CameraViewController: UIViewController {
 	// camera input and output from device
 	private func setUpCamera() {
 		let session = AVCaptureSession()
-		if let device = AVCaptureDevice.default(for: .video) {
+		if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
 			do {
 				let input = try AVCaptureDeviceInput(device: device)
 				if session.canAddInput(input) {
@@ -139,11 +166,16 @@ class CameraViewController: UIViewController {
 				
 				session.startRunning()
 				self.session = session
+				
 			} catch {
 				print("ERROR")
 				print(error)
 			}
 		}
+	}
+	
+	private func addCameraOverlay() {
+		
 	}
 	
 	// capture photo
@@ -157,14 +189,15 @@ class CameraViewController: UIViewController {
 		retakeButton.removeFromSuperview()
 		imageView.removeFromSuperview()
 		view.addSubview(backButton)
+		view.addSubview(shutterButton)
 		self.session?.startRunning()
 	}
 	
+	// return to landing page from camera view
 	@objc private func onBackButton() {
 		print("tapped back button")
 		self.dismiss(animated: true, completion: nil)
 	}
-	
 }
 
 extension CameraViewController: AVCapturePhotoCaptureDelegate {
@@ -182,8 +215,11 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 		imageView = UIImageView(image: image)
 		imageView.contentMode = .scaleAspectFill
 		imageView.frame = view.bounds
+		shutterButton.removeFromSuperview()
 		backButton.removeFromSuperview()
 		view.addSubview(imageView)
+		view.addSubview(cameraOverlayTop)
+		view.addSubview(cameraOverlayBottom)
 		view.addSubview(retakeButton)
 	}
 }

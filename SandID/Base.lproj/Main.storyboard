@@ -20,7 +20,7 @@
                                 <rect key="frame" x="132" y="433" width="150" height="31"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="chevron.backward" catalog="system" title="Open camera"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Open camera"/>
                                 <connections>
                                     <segue destination="kmc-0S-k0Z" kind="showDetail" identifier="OpenCameraSegue" id="QGx-hN-OSR"/>
                                 </connections>
@@ -76,7 +76,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="chevron.backward" catalog="system" width="96" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

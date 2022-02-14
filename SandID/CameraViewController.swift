@@ -44,12 +44,9 @@ class CameraViewController: UIViewController {
 	private let retakeButton: UIButton = {
 		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
 		let buttonImage = UIImage(systemName: "xmark")
-		let config = UIImage.SymbolConfiguration(pointSize: 15.0, weight: .semibold, scale: .large)
+		let config = UIImage.SymbolConfiguration(pointSize: 15.0, weight: .bold, scale: .large)
 		button.setImage(buttonImage?.withConfiguration(config), for: .normal)
 		button.tintColor = UIColor.white
-		button.layer.shadowColor = UIColor.black.cgColor
-		button.layer.shadowOpacity = 1.0
-		button.layer.shadowRadius = 10
 		return button
 	}()
 	
@@ -193,7 +190,6 @@ class CameraViewController: UIViewController {
 	// proceed with captured photo
 	@objc private func onSubmitPhoto() {
 		print("want to submit photo")
-		//performSegue(withIdentifier: "PhotoSubmitSegue", sender: nil)
 		if let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "PhotoSubmitVC") as? PhotoSubmitViewController {
 			print("got vc")
 			if let navigator = self.navigationController {
@@ -212,18 +208,19 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 			return
 		}
 		
+		let offset = cameraOverlayTop.frame.height
 		let image = UIImage(data: data)
 		
 		session?.stopRunning()
 		
 		imageView = UIImageView(image: image)
 		imageView.contentMode = .scaleAspectFill
-		imageView.frame = view.bounds
+		
+		imageView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: self.view.frame.height - (offset * 4))
+		
 		shutterButton.removeFromSuperview()
 		navigationItem.setHidesBackButton(true, animated: false)
 		view.addSubview(imageView)
-		view.addSubview(cameraOverlayTop)
-		view.addSubview(cameraOverlayBottom)
 		view.addSubview(retakeButton)
 		view.addSubview(submitButton)
 		

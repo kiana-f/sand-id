@@ -15,6 +15,7 @@
 		9D12B3B12797D2C8007BF1BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D12B3B02797D2C8007BF1BC /* Assets.xcassets */; };
 		9D12B3B42797D2C8007BF1BC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9D12B3B22797D2C8007BF1BC /* LaunchScreen.storyboard */; };
 		9D1F3B0527A0BB6400087C35 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1F3B0427A0BB6400087C35 /* CameraViewController.swift */; };
+		9D1F3B0727B4CD8200087C35 /* PhotoSubmitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1F3B0627B4CD8200087C35 /* PhotoSubmitViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		9D12B3B32797D2C8007BF1BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9D12B3B52797D2C8007BF1BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9D1F3B0427A0BB6400087C35 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
+		9D1F3B0627B4CD8200087C35 /* PhotoSubmitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSubmitViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 				9D12B3A82797D2C3007BF1BC /* ViewController.swift */,
 				9D1F3B0427A0BB6400087C35 /* CameraViewController.swift */,
 				9D12B3AA2797D2C3007BF1BC /* Main.storyboard */,
+				9D1F3B0627B4CD8200087C35 /* PhotoSubmitViewController.swift */,
 				9D12B3B02797D2C8007BF1BC /* Assets.xcassets */,
 				9D12B3B22797D2C8007BF1BC /* LaunchScreen.storyboard */,
 				9D12B3B52797D2C8007BF1BC /* Info.plist */,
@@ -145,6 +148,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D12B3A92797D2C3007BF1BC /* ViewController.swift in Sources */,
+				9D1F3B0727B4CD8200087C35 /* PhotoSubmitViewController.swift in Sources */,
 				9D1F3B0527A0BB6400087C35 /* CameraViewController.swift in Sources */,
 				9D12B3A52797D2C3007BF1BC /* AppDelegate.swift in Sources */,
 				9D12B3AF2797D2C3007BF1BC /* SandID.xcdatamodeld in Sources */,

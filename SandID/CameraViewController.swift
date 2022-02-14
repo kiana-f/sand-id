@@ -44,21 +44,16 @@ class CameraViewController: UIViewController {
 	private let retakeButton: UIButton = {
 		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
 		let buttonImage = UIImage(systemName: "xmark")
-		let config = UIImage.SymbolConfiguration(pointSize: 20.0, weight: .bold, scale: .large)
+		let config = UIImage.SymbolConfiguration(pointSize: 17.0, weight: .semibold, scale: .large)
 		button.setImage(buttonImage?.withConfiguration(config), for: .normal)
 		button.tintColor = UIColor.white
-		button.layer.shadowColor = UIColor.black.cgColor
-		button.layer.shadowOpacity = 1.0
-		button.layer.shadowRadius = 10
 		return button
 	}()
 	
-	// button to retake photo
-	private let backButton: UIButton = {
-		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
-		let buttonImage = UIImage(systemName: "chevron.backward")
-		let config = UIImage.SymbolConfiguration(pointSize: 20.0, weight: .bold, scale: .large)
-		button.setImage(buttonImage?.withConfiguration(config), for: .normal)
+	// button to proceed with photo
+	private let submitButton: UIButton = {
+		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 50))
+		button.setTitle("Continue", for: .normal)
 		button.tintColor = UIColor.white
 		button.layer.shadowColor = UIColor.black.cgColor
 		button.layer.shadowOpacity = 1.0
@@ -78,13 +73,12 @@ class CameraViewController: UIViewController {
 		view.addSubview(cameraOverlayTop)
 		view.addSubview(cameraOverlayBottom)
 		view.addSubview(shutterButton)
-		view.addSubview(backButton)
 		
 		checkCameraPermissions()
 		
 		shutterButton.addTarget(self, action: #selector(didTapTakePhoto), for: .touchUpInside)
 		retakeButton.addTarget(self, action: #selector(tapRetakePhoto), for: .touchUpInside)
-		backButton.addTarget(self, action: #selector(onBackButton), for: .touchUpInside)
+		submitButton.addTarget(self, action: #selector(onSubmitPhoto), for: .touchUpInside)
     }
 	
 	override func viewDidLayoutSubviews() {
@@ -96,7 +90,8 @@ class CameraViewController: UIViewController {
 									   y: view.frame.size.height - 100)
 		
 		retakeButton.center = CGPoint(x: 50, y: 75)
-		backButton.center = CGPoint(x: 50, y: 75)
+		submitButton.center = CGPoint(x: self.view.frame.width - 75, y: 80)
+		
 		cameraOverlayTop.center = CGPoint(x: self.view.frame.width / 2, y: cameraOverlayTop.frame.height / 2)
 		
 		cameraOverlayBottom.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height - (cameraOverlayTop.frame.height / 2))
@@ -174,10 +169,6 @@ class CameraViewController: UIViewController {
 		}
 	}
 	
-	private func addCameraOverlay() {
-		
-	}
-	
 	// capture photo
 	@objc private func didTapTakePhoto() {
 		output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
@@ -186,17 +177,24 @@ class CameraViewController: UIViewController {
 	// remove image view and starts new capture session
 	@objc private func tapRetakePhoto() {
 		print("tapped retake photo button")
-		retakeButton.removeFromSuperview()
 		imageView.removeFromSuperview()
-		view.addSubview(backButton)
 		view.addSubview(shutterButton)
+		self.navigationItem.setHidesBackButton(false, animated: false)
+		cameraOverlayTop.layer.opacity = 0.5
+		cameraOverlayBottom.layer.opacity = 0.5
 		self.session?.startRunning()
 	}
 	
-	// return to landing page from camera view
-	@objc private func onBackButton() {
-		print("tapped back button")
-		self.dismiss(animated: true, completion: nil)
+	// proceed with captured photo
+	@objc private func onSubmitPhoto() {
+		print("want to submit photo")
+		if let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "PhotoSubmitVC") as? PhotoSubmitViewController {
+			print("got vc")
+			if let navigator = self.navigationController {
+				print("got nav")
+				navigator.pushViewController(vc, animated: true)
+			}
+		}
 	}
 }
 
@@ -208,18 +206,29 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 			return
 		}
 		
+		let offset = cameraOverlayTop.frame.height
 		let image = UIImage(data: data)
 		
 		session?.stopRunning()
 		
 		imageView = UIImageView(image: image)
 		imageView.contentMode = .scaleAspectFill
-		imageView.frame = view.bounds
+		imageView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: self.view.frame.height - (offset * 4))
+		
 		shutterButton.removeFromSuperview()
-		backButton.removeFromSuperview()
+		
+		let continueButton = UIBarButtonItem(customView: submitButton)
+		self.navigationItem.setRightBarButton(continueButton, animated: true)
+		
+		let retake = UIBarButtonItem(customView: retakeButton)
+		self.navigationItem.leftItemsSupplementBackButton = true
+		self.navigationItem.setLeftBarButtonItems([retake], animated: true)
+		self.navigationItem.setHidesBackButton(true, animated: false)
+		
 		view.addSubview(imageView)
-		view.addSubview(cameraOverlayTop)
-		view.addSubview(cameraOverlayBottom)
-		view.addSubview(retakeButton)
+		
+		cameraOverlayTop.layer.opacity = 1.0
+		cameraOverlayBottom.layer.opacity = 1.0
 	}
+	
 }

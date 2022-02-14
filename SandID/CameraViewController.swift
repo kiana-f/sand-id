@@ -44,7 +44,7 @@ class CameraViewController: UIViewController {
 	private let retakeButton: UIButton = {
 		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
 		let buttonImage = UIImage(systemName: "xmark")
-		let config = UIImage.SymbolConfiguration(pointSize: 15.0, weight: .bold, scale: .large)
+		let config = UIImage.SymbolConfiguration(pointSize: 17.0, weight: .semibold, scale: .large)
 		button.setImage(buttonImage?.withConfiguration(config), for: .normal)
 		button.tintColor = UIColor.white
 		return button
@@ -177,11 +177,9 @@ class CameraViewController: UIViewController {
 	// remove image view and starts new capture session
 	@objc private func tapRetakePhoto() {
 		print("tapped retake photo button")
-		retakeButton.removeFromSuperview()
 		imageView.removeFromSuperview()
-		submitButton.removeFromSuperview()
 		view.addSubview(shutterButton)
-		navigationItem.setHidesBackButton(false, animated: false)
+		self.navigationItem.setHidesBackButton(false, animated: false)
 		cameraOverlayTop.layer.opacity = 0.5
 		cameraOverlayBottom.layer.opacity = 0.5
 		self.session?.startRunning()
@@ -215,16 +213,22 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 		
 		imageView = UIImageView(image: image)
 		imageView.contentMode = .scaleAspectFill
-		
 		imageView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: self.view.frame.height - (offset * 4))
 		
 		shutterButton.removeFromSuperview()
-		navigationItem.setHidesBackButton(true, animated: false)
+		
+		let continueButton = UIBarButtonItem(customView: submitButton)
+		self.navigationItem.setRightBarButton(continueButton, animated: true)
+		
+		let retake = UIBarButtonItem(customView: retakeButton)
+		self.navigationItem.leftItemsSupplementBackButton = true
+		self.navigationItem.setLeftBarButtonItems([retake], animated: true)
+		self.navigationItem.setHidesBackButton(true, animated: false)
+		
 		view.addSubview(imageView)
-		view.addSubview(retakeButton)
-		view.addSubview(submitButton)
 		
 		cameraOverlayTop.layer.opacity = 1.0
 		cameraOverlayBottom.layer.opacity = 1.0
 	}
+	
 }

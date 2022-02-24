@@ -1,18 +1,18 @@
 PODS:
-  - BoxSDK (3.1.0):
-    - BoxSDK/Core (= 3.1.0)
-  - BoxSDK/Core (3.1.0)
+  - BoxSDK (5.1.0):
+    - BoxSDK/Core (= 5.1.0)
+  - BoxSDK/Core (5.1.0)
 
 DEPENDENCIES:
-  - BoxSDK (~> 3.0)
+  - BoxSDK (~> 5.0)
 
 SPEC REPOS:
   trunk:
     - BoxSDK
 
 SPEC CHECKSUMS:
-  BoxSDK: fac062f75533f088b26f915b950eff8c9bb2a080
+  BoxSDK: e9f1a9755927b7d58cfc0a7059bcbf5247c0028e
 
-PODFILE CHECKSUM: 82bcdc67906641d44b65459e2e145ad444b7f515
+PODFILE CHECKSUM: 097e4e204264eb0da1e78d367c1fff8e793863e3
 
 COCOAPODS: 1.11.2

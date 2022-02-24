@@ -22,7 +22,11 @@ public class EventItem: BoxModel {
         case file(File)
         /// Comment type
         case comment(Comment)
-        /// Unknown type
+        /// User type
+        case user(User)
+        /// This case is used as a work around to bugs in the enterprise events API where some enterprise event sources
+        /// don't correctly map to a specific types. In this case, you should use `rawData` to access the raw JSON
+        /// directly.
         case unknown
     }
 
@@ -35,22 +39,43 @@ public class EventItem: BoxModel {
     /// - Throws: Decoding error.
     public required init(json: [String: Any]) throws {
         rawData = json
+        var updatedJson: [String: Any] = json
 
-        guard let type = json["type"] as? String else {
-            throw BoxCodingError(message: .typeMismatch(key: "type"))
+        if let entry = updatedJson.removeValue(forKey: "item_id") {
+            updatedJson["id"] = entry
         }
-        switch type {
-        case "file":
-            let file = try File(json: json)
-            itemValue = .file(file)
-        case "folder":
-            let folder = try Folder(json: json)
-            itemValue = .folder(folder)
-        case "comment":
-            let comment = try Comment(json: json)
-            itemValue = .comment(comment)
-        default:
-            // Clients to use rawData directly
+
+        if let entry = updatedJson.removeValue(forKey: "item_type") {
+            updatedJson["type"] = entry
+        }
+
+        if let entry = updatedJson.removeValue(forKey: "item_name") {
+            updatedJson["name"] = entry
+        }
+
+        if let type = updatedJson["type"] as? String {
+            switch type {
+            case "file":
+                let file = try File(json: updatedJson)
+                itemValue = .file(file)
+            case "folder":
+                let folder = try Folder(json: updatedJson)
+                itemValue = .folder(folder)
+            case "comment":
+                let comment = try Comment(json: updatedJson)
+                itemValue = .comment(comment)
+            case "user":
+                let user = try User(json: updatedJson)
+                itemValue = .user(user)
+            default:
+                // In the case where the event source JSON cannot be mapped to specific type, you can use the
+                // `rawData` property to access the raw JSON representation of the event source.
+                itemValue = .unknown
+            }
+        }
+        else {
+            // In the case where the event source JSON cannot be mapped to specific type, you can use the
+            // `rawData` property to access the raw JSON representation of the event source.
             itemValue = .unknown
         }
     }

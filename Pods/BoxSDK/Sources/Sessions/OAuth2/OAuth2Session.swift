@@ -8,7 +8,8 @@
 
 import Foundation
 
-class OAuth2Session: SessionProtocol, ExpiredTokenHandling {
+/// OAuth 2 Session
+public class OAuth2Session: SessionProtocol, ExpiredTokenHandling {
     var authModule: AuthModule
     var configuration: BoxSDKConfiguration
     var tokenStore: TokenStore
@@ -23,8 +24,7 @@ class OAuth2Session: SessionProtocol, ExpiredTokenHandling {
         self.tokenStore = tokenStore
     }
 
-    func getAccessToken(completion: @escaping AccessTokenClosure) {
-
+    public func getAccessToken(completion: @escaping AccessTokenClosure) {
         // Check if the cached token info is valid, if so just return that access token
         if isValidToken() {
             completion(.success(tokenInfo.accessToken))
@@ -50,7 +50,7 @@ class OAuth2Session: SessionProtocol, ExpiredTokenHandling {
         }
     }
 
-    func handleExpiredToken(completion: @escaping Callback<Void>) {
+    public func handleExpiredToken(completion: @escaping Callback<Void>) {
         tokenStore.clear { result in
             switch result {
             case .success:
@@ -61,7 +61,11 @@ class OAuth2Session: SessionProtocol, ExpiredTokenHandling {
         }
     }
 
-    func refreshToken(completion: @escaping AccessTokenClosure) {
+    /// Gets refreshed access token if necessary
+    ///
+    /// - Parameter completion: Completion for obtaining access token.
+    /// - Returns: AccessTokenClosure containing either token string or error.
+    public func refreshToken(completion: @escaping AccessTokenClosure) {
         guard let refreshToken = tokenInfo.refreshToken else {
             completion(.failure(BoxAPIAuthError(message: .refreshTokenNotFound)))
             return
@@ -107,7 +111,7 @@ class OAuth2Session: SessionProtocol, ExpiredTokenHandling {
         }
     }
 
-    func revokeTokens(completion: @escaping Callback<Void>) {
+    public func revokeTokens(completion: @escaping Callback<Void>) {
         authModule.revokeToken(token: tokenInfo.accessToken) { [weak self] result in
             guard let self = self else {
                 return
@@ -129,7 +133,7 @@ class OAuth2Session: SessionProtocol, ExpiredTokenHandling {
     ///   - resource: Full url path to the file that the token should be generated for, eg: https://api.box.com/2.0/files/{file_id}
     ///   - sharedLink: Shared link to get a token for.
     ///   - completion: Returns the success or an error.
-    func downscopeToken(
+    public func downscopeToken(
         scope: Set<TokenScope>,
         resource: String? = nil,
         sharedLink: String? = nil,

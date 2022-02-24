@@ -59,6 +59,10 @@ public struct BoxSDKConfiguration {
     public let consoleLogDestination: ConsoleLogDestination
     /// File log destination.
     public let fileLogDestination: FileLogDestination?
+    /// An optional custom callback URL string. The URL to which Box redirects the browser when authentication completes.
+    /// The user's actual interaction with your application begins when Box redirects to this URL.
+    /// If not specified, default URL is used in a format of `boxsdk-clientId://boxsdkoauth2redirect` with the real value of `clientId`.
+    public let callbackURL: String
 
     /// Initializer
     ///
@@ -67,12 +71,14 @@ public struct BoxSDKConfiguration {
     ///   - clientSecret: The client secret of the application requesting authentication.
     ///   - apiBaseURL: Base URL for majority of the requests.
     ///   - uploadApiBaseURL: Base URL for upload requests
+    ///   - oauth2AuthorizeURL: URL for the OAuth2 authorization page, where users are redirected to enter their credentials
     ///   - maxRetryAttempts: Base URL for file upload requests.
     ///   - tokenRefreshThreshold: Specifies how long before token expiration date it should be refreshed.
     ///   - retryBaseInterval: The base factor used in calculating exponential backoff delay for retries
     ///   - consoleLogDestination: Console log destination.
     ///   - fileLogDestination: File log destination.
     ///   - clientAnalyticsInfo: Analytics info that is set to request headers.
+    ///   - callbackURL: Optional callback URL for OAuth 2 authentication flow
     init(
         clientId: String = "",
         clientSecret: String = "",
@@ -84,7 +90,8 @@ public struct BoxSDKConfiguration {
         retryBaseInterval: TimeInterval? = defaultRetryBaseInterval,
         consoleLogDestination: ConsoleLogDestination? = ConsoleLogDestination(),
         fileLogDestination: FileLogDestination? = nil,
-        clientAnalyticsInfo: ClientAnalyticsInfo? = nil
+        clientAnalyticsInfo: ClientAnalyticsInfo? = nil,
+        callbackURL: String? = nil
     ) throws {
         self.clientId = clientId
         self.clientSecret = clientSecret
@@ -92,6 +99,9 @@ public struct BoxSDKConfiguration {
         self.apiBaseURL = apiBaseURL ?? defaultAPIBaseURL
         self.uploadApiBaseURL = uploadApiBaseURL ?? defaultUploadAPIBaseURL
         self.oauth2AuthorizeURL = oauth2AuthorizeURL ?? defaultOAuth2AuthorizeURL
+
+        let defaultCallbackURL = "boxsdk-\(clientId)://boxsdkoauth2redirect"
+        self.callbackURL = callbackURL ?? defaultCallbackURL
 
         try URLValidation.validate(networkUrl: self.apiBaseURL)
         try URLValidation.validate(networkUrl: self.uploadApiBaseURL)

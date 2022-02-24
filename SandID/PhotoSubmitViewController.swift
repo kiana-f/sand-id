@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import BoxSDK
 
 class PhotoSubmitViewController: UIViewController {
+	
+	@IBOutlet var uploadButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -15,19 +18,28 @@ class PhotoSubmitViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
 	
+	
+	@IBAction func onUploadData(_ sender: Any) {
+		print("touched upload button")
+		uploadImage()
+	}
+	
 	private func uploadImage() {
-//		let data = "test content".data(using: .utf8)
-//
-//		let task: BoxUploadTask = client.files.upload(data: data, name: "Test File.txt", parentId: "0") { (result: Result<File, BoxSDKError>) in
-//			guard case let .success(file) = result else {
-//				print("Error uploading file")
-//				return
-//			}
-//
-//			print("File \(file.name) was uploaded at \(file.createdAt) into \"\(file.parent.name)\"")
-//		}
+		let data: Data = "test content".data(using: .utf8) ?? Data(base64Encoded: "error")!
+		
+		let client = BoxSDK.getClient(token: "wojV7ByCxsIvkVvs8X8xT7IVDfFcutlw")
 
-		// To cancel upload
+		let task: BoxUploadTask = client.files.upload(data: data, name: "Test File.txt", parentId: "0") { (result: Result<File, BoxSDKError>) in
+			guard case let .success(file) = result else {
+				print("Error uploading file")
+				return
+			}
+
+			
+			print("File \(String(describing: file.name)) was uploaded at \(file.createdAt) into \"\(file.parent?.name)\"")
+		}
+
+		 //To cancel upload
 //		if someConditionIsSatisfied {
 //			task.cancel()
 //		}

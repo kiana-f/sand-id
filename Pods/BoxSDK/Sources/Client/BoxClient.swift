@@ -23,8 +23,8 @@ public class BoxClient {
     public private(set) lazy var collections = CollectionsModule(boxClient: self)
     /// Provides collaborations functionality.
     public private(set) lazy var collaborations = CollaborationsModule(boxClient: self)
-    /// Provides collaborations whitelist functionality.
-    public private(set) lazy var collaborationWhiteList = CollaborationWhitelistModule(boxClient: self)
+    /// Provides collaborations whitelist functionality
+    public private(set) lazy var collaborationAllowList = CollaborationAllowlistModule(boxClient: self)
     /// Metadata management.
     public private(set) lazy var metadata = MetadataModule(boxClient: self)
     /// Provides [Events](../Structs/Events.html) management.
@@ -49,6 +49,8 @@ public class BoxClient {
     public private(set) lazy var legalHolds = LegalHoldsModule(boxClient: self)
     /// Storage Policies management
     public private(set) lazy var storagePolicies = StoragePoliciesModule(boxClient: self)
+    /// Provides sign requests functionality.
+    public private(set) lazy var signRequests = SignRequestsModule(boxClient: self)
 
     /// Provides network communication with the Box APIs.
     private var networkAgent: NetworkAgentProtocol
@@ -142,7 +144,6 @@ private extension BoxClient {
             completion(.failure(BoxSDKError(message: .clientDestroyed)))
             return
         }
-
         session.getAccessToken { (result: Result<String, BoxSDKError>) in
 
             switch result {
@@ -178,7 +179,7 @@ private extension BoxClient {
         case let .failure(error):
             if let apiError = error as? BoxAPIAuthError, apiError.message == .unauthorizedAccess {
                 if let tokenHandlingSession = session as? ExpiredTokenHandling {
-                    tokenHandlingSession.handleExpiredToken(completion: { _ in })
+                    tokenHandlingSession.handleExpiredToken(completion: { _ in completion(.failure(error)) })
                     return
                 }
             }
@@ -264,6 +265,8 @@ extension BoxClient: BoxClientProtocol {
     ///   - queryParameters: Additional parameters to be passed in the URL that is called.
     ///   - multipartBody: The multipart body of the request
     ///   - completion: Returns a BoxResponse object or an error if request fails
+    /// - Returns: BoxUploadTask
+    @discardableResult
     public func post(
         url: URL,
         httpHeaders: BoxHTTPHeaders = [:],
@@ -271,7 +274,8 @@ extension BoxClient: BoxClientProtocol {
         multipartBody: MultipartForm,
         progress: @escaping (Progress) -> Void = { _ in },
         completion: @escaping Callback<BoxResponse>
-    ) {
+    ) -> BoxUploadTask {
+        let task = BoxUploadTask()
         send(
             request: BoxRequest(
                 httpMethod: .post,
@@ -279,10 +283,12 @@ extension BoxClient: BoxClientProtocol {
                 httpHeaders: httpHeaders,
                 queryParams: queryParameters,
                 body: .multipart(multipartBody),
+                task: task.receiveTask,
                 progress: progress
             ),
             completion: completion
         )
+        return task
     }
 
     /// Performs an HTTP PUT method call on an API endpoint and returns a response.
@@ -320,6 +326,8 @@ extension BoxClient: BoxClientProtocol {
     ///   - queryParameters: Additional parameters to be passed in the URL that is called.
     ///   - multipartBody: The multipart body of the request
     ///   - completion: Returns a BoxResponse object or an error if request fails
+    /// - Returns: BoxUploadTask
+    @discardableResult
     public func put(
         url: URL,
         httpHeaders: BoxHTTPHeaders = [:],
@@ -327,7 +335,8 @@ extension BoxClient: BoxClientProtocol {
         multipartBody: MultipartForm,
         progress: @escaping (Progress) -> Void = { _ in },
         completion: @escaping Callback<BoxResponse>
-    ) {
+    ) -> BoxUploadTask {
+        let task = BoxUploadTask()
         send(
             request: BoxRequest(
                 httpMethod: .put,
@@ -335,10 +344,12 @@ extension BoxClient: BoxClientProtocol {
                 httpHeaders: httpHeaders,
                 queryParams: queryParameters,
                 body: .multipart(multipartBody),
+                task: task.receiveTask,
                 progress: progress
             ),
             completion: completion
         )
+        return task
     }
 
     /// Performs an HTTP PUT method call on an API endpoint and returns a response - variant for chunked upload.
@@ -350,6 +361,8 @@ extension BoxClient: BoxClientProtocol {
     ///   - data: Binary body of the request
     ///   - progress: Closure where upload progress will be reported
     ///   - completion: Returns a BoxResponse object or an error if request fails
+    /// - Returns: BoxUploadTask
+    @discardableResult
     public func put(
         url: URL,
         httpHeaders: BoxHTTPHeaders = [:],
@@ -357,7 +370,8 @@ extension BoxClient: BoxClientProtocol {
         data: Data,
         progress: @escaping (Progress) -> Void = { _ in },
         completion: @escaping Callback<BoxResponse>
-    ) {
+    ) -> BoxUploadTask {
+        let task = BoxUploadTask()
         send(
             request: BoxRequest(
                 httpMethod: .put,
@@ -365,10 +379,12 @@ extension BoxClient: BoxClientProtocol {
                 httpHeaders: httpHeaders,
                 queryParams: queryParameters,
                 body: .data(data),
+                task: task.receiveTask,
                 progress: progress
             ),
             completion: completion
         )
+        return task
     }
 
     /// Performs an HTTP OPTIONS method call on an API endpoint and returns a response.
@@ -379,23 +395,28 @@ extension BoxClient: BoxClientProtocol {
     ///   - queryParameters: Additional parameters to be passed in the URL that is called.
     ///   - json: The JSON body of the request
     ///   - completion: Returns a BoxResponse object or an error if request fails
+    /// - Returns: BoxNetworkTask
+    @discardableResult
     public func options(
         url: URL,
         httpHeaders: BoxHTTPHeaders = [:],
         queryParameters: QueryParameters = [:],
         json: Any? = nil,
         completion: @escaping Callback<BoxResponse>
-    ) {
+    ) -> BoxNetworkTask {
+        let task = BoxNetworkTask()
         send(
             request: BoxRequest(
                 httpMethod: .options,
                 url: url,
                 httpHeaders: httpHeaders,
                 queryParams: queryParameters,
-                body: jsonToBody(json)
+                body: jsonToBody(json),
+                task: task.receiveTask
             ),
             completion: completion
         )
+        return task
     }
 
     /// Performs an HTTP DELETE method call on an API endpoint and returns a response.
@@ -432,6 +453,8 @@ extension BoxClient: BoxClientProtocol {
     ///   - downloadDestinationURL: The URL on disk where the data will be saved
     ///   - progress: Completion block to track the progress of the request
     ///   - completion: Returns a BoxResponse object or an error if request fails
+    /// - Returns: BoxDownloadTask
+    @discardableResult
     public func download(
         url: URL,
         downloadDestinationURL: URL,
@@ -439,7 +462,8 @@ extension BoxClient: BoxClientProtocol {
         queryParameters: QueryParameters = [:],
         progress: @escaping (Progress) -> Void = { _ in },
         completion: @escaping Callback<BoxResponse>
-    ) {
+    ) -> BoxDownloadTask {
+        let task = BoxDownloadTask()
         send(
             request: BoxRequest(
                 httpMethod: .get,
@@ -447,10 +471,12 @@ extension BoxClient: BoxClientProtocol {
                 httpHeaders: httpHeaders,
                 queryParams: queryParameters,
                 downloadDestination: downloadDestinationURL,
+                task: task.receiveTask,
                 progress: progress
             ),
             completion: completion
         )
+        return task
     }
 }
 

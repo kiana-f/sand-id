@@ -57,13 +57,13 @@ extension Logger {
         let file = URL(fileURLWithPath: String(describing: file)).deletingPathExtension().lastPathComponent
         var function = String(describing: function)
         if let firstIndex = function.firstIndex(of: "("),
-            let lastIndex = function.lastIndex(of: ")") {
+           let lastIndex = function.lastIndex(of: ")") {
             function.removeSubrange(firstIndex ... lastIndex)
         }
         log("%{public}@.%{public}@():%ld", level: .debug, [file, function, line])
     }
 
-    internal func log(_ message: StaticString, level: LogLevel, _ args: [CVarArg]) {
+    func log(_ message: StaticString, level: LogLevel, _ args: [CVarArg]) {
         destinations.forEach { $0.write(message, level: level, category: category, args) }
     }
 }
@@ -118,10 +118,10 @@ extension Logger {
 
         let output = StaticString("\n\n%{public}@\n◁ Headers: %{private}@\n◁ Body: %{private}@\n")
         if errorOutput {
-            debug(output, responseString, headersString, bodyString)
+            error(output, responseString, headersString, bodyString)
         }
         else {
-            error(output, responseString, headersString, bodyString)
+            debug(output, responseString, headersString, bodyString)
         }
     }
 }

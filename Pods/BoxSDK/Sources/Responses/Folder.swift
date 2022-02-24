@@ -76,7 +76,7 @@ public class Folder: BoxModel {
     public let id: String
     /// A unique ID for use with the events.
     public let sequenceId: String?
-    /// The name of the folder. May be nil for some folders, such as root or trash.
+    /// The entity tag of this folder. Used with If-Match headers.
     public let etag: String?
     /// The name of the folder.
     public let name: String?
@@ -132,6 +132,8 @@ public class Folder: BoxModel {
     public let isExternallyOwned: Bool?
     /// The collections the folder belongs to
     public let collections: [[String: String]]?
+    /// Details about the classification applied to a Box folder
+    public let classification: Classification?
 
     /// Initializer.
     ///
@@ -181,5 +183,6 @@ public class Folder: BoxModel {
         allowedInviteeRoles = try BoxJSONDecoder.optionalDecode(json: json, forKey: "allowed_invitee_roles")
         isExternallyOwned = try BoxJSONDecoder.optionalDecode(json: json, forKey: "is_externally_owned")
         collections = json["collections"] as? [[String: String]]
+        classification = try BoxJSONDecoder.optionalDecode(json: json, forKey: "classification")
     }
 }

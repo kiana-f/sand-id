@@ -159,9 +159,8 @@ public class FoldersModule {
         limit: Int? = nil,
         sort: FolderItemsOrderBy? = nil,
         direction: OrderDirection? = nil,
-        fields: [String]? = nil,
-        completion: @escaping Callback<PagingIterator<FolderItem>>
-    ) {
+        fields: [String]? = nil
+    ) -> PagingIterator<FolderItem> {
 
         var queryParams: QueryParameters = [
             "limit": limit,
@@ -177,10 +176,10 @@ public class FoldersModule {
             queryParams["offset"] = offset
         }
 
-        boxClient.get(
+        return .init(
+            client: boxClient,
             url: URL.boxAPIEndpoint("/2.0/folders/\(folderId)/items", configuration: boxClient.configuration),
-            queryParameters: queryParams,
-            completion: ResponseHandler.pagingIterator(client: boxClient, wrapping: completion)
+            queryParameters: queryParams
         )
     }
 
@@ -221,19 +220,14 @@ public class FoldersModule {
     ///   - name: The name of the folder.
     ///   - description: The description of the folder.
     ///   - parentId: The ID of the parent folder
-    ///   - access: The level of access. Can be open ("People with the link"), company ("People in your company"), or collaborators ("People in this folder").
-    ///     If you omit this field then the access level will be set to the default access level specified by the enterprise admin.
-    ///   - password: The password required to access the shared link. Set to .empty value to delete password
-    ///   - unsharedAt: The date-time that this link will become disabled. This field can only be set by users with paid accounts.
-    ///   - canDownload: Whether the shared link allows downloads. For shared links on folders, this also applies to any items in the folder.
-    ///     Can only be set with access levels open and company (not collaborators).
+    ///   - sharedLink: Shared links provide direct, read-only access to folder on Box using a URL.
     ///   - folderUploadEmailAccess: Can be open or collaborators
     ///   - tags: Array of tags to be added or replaced to the folder
     ///   - canNonOwnersInvite: If this parameter is set to false, only folder owners and co-owners can send collaborator invites
     ///   - isCollaborationRestrictedToEnterprise: Whether to restrict future collaborations to within the enterprise. Does not affect existing collaborations.
     ///   - fields: Comma-separated list of [fields](https://developer.box.com/reference#fields) to
     ///     include in the response.
-    ///   - completion: Returns The updated folder is returned if the name is valid. Errors generally occur only if there is a name collision.
+    ///   - completion: The updated folder is returned if the name is valid. Errors generally occur only if there is a name collision.
     public func update(
         folderId: String,
         name: String? = nil,
@@ -339,17 +333,16 @@ public class FoldersModule {
     ///     include in the response.
     public func listCollaborations(
         folderId: String,
-        fields: [String]? = nil,
-        completion: @escaping Callback<PagingIterator<Collaboration>>
-    ) {
-        boxClient.get(
+        fields: [String]? = nil
+    ) -> PagingIterator<Collaboration> {
+        .init(
+            client: boxClient,
             url: URL.boxAPIEndpoint("/2.0/folders/\(folderId)/collaborations", configuration: boxClient.configuration),
             queryParameters: [
                 "offset": 0,
                 "limit": 1000,
                 "fields": FieldsQueryParam(fields)
-            ],
-            completion: ResponseHandler.pagingIterator(client: boxClient, wrapping: completion)
+            ]
         )
     }
 
@@ -484,6 +477,8 @@ public class FoldersModule {
     ///   - folderId: The ID of the folder
     ///   - access: The level of access. If you omit this field then the access level will be set to the default access level specified by the enterprise admin
     ///   - unsharedAt: The date-time that this link will become disabled. This field can only be set by users with paid accounts
+    ///   - vanityName: The custom name of a shared link, as used in the vanityUrl field.
+    ///     It should be between 12 and 30 characters. This field can contains only letters, numbers, and hyphens.
     ///   - password: The password required to access the shared link. Set to .null to remove the password
     ///   - canDownload: Whether the shared link allows downloads. Applies to any items in the folder
     ///   - completion: Returns a standard SharedLink object or an error
@@ -491,6 +486,7 @@ public class FoldersModule {
         forFolder folderId: String,
         access: SharedLinkAccess? = nil,
         unsharedAt: NullableParameter<Date>? = nil,
+        vanityName: NullableParameter<String>? = nil,
         password: NullableParameter<String>? = nil,
         canDownload: Bool? = nil,
         completion: @escaping Callback<SharedLink>
@@ -501,6 +497,7 @@ public class FoldersModule {
                 access: access,
                 password: password,
                 unsharedAt: unsharedAt,
+                vanityName: vanityName,
                 canDownload: canDownload
             )),
             fields: ["shared_link"]
@@ -595,6 +592,66 @@ public class FoldersModule {
     ) {
         boxClient.delete(
             url: URL.boxAPIEndpoint("/2.0/folders/\(folderId)/watermark", configuration: boxClient.configuration),
+            completion: ResponseHandler.default(wrapping: completion)
+        )
+    }
+
+    /// Get all of the locks on a folder.
+    ///
+    /// - Parameters:
+    ///   - folderId: The ID of the folder on which to retrieve folder locks.
+    ///   - completion: Returns all of the locks on the folder, or an error if the request is unsuccessful.
+    public func listLocks(
+        folderId: String
+    ) -> PagingIterator<FolderLock> {
+
+        return .init(
+            client: boxClient,
+            url: URL.boxAPIEndpoint("/2.0/folder_locks", configuration: boxClient.configuration),
+            queryParameters: [
+                "folder_id": folderId
+            ]
+        )
+    }
+
+    /// Creates a folder lock on a folder, preventing it from being moved and/or deleted.
+    ///
+    /// - Parameters:
+    ///   - folderId: The ID of the folder to apply the lock to.
+    ///   - completion: Returns a folder lock object or an error if the request is unsuccessful.
+    public func createLock(
+        folderId: String,
+        completion: @escaping Callback<FolderLock>
+    ) {
+        let body: [String: Any] = [
+            "folder": [
+                "type": "folder",
+                "id": folderId
+            ],
+            "locked_operations": [
+                "move": true,
+                "delete": true
+            ]
+        ]
+
+        boxClient.post(
+            url: URL.boxAPIEndpoint("/2.0/folder_locks", configuration: boxClient.configuration),
+            json: body,
+            completion: ResponseHandler.default(wrapping: completion)
+        )
+    }
+
+    /// Remove the specified folder lock.
+    ///
+    /// - Parameters:
+    ///   - folderLockId: The id of the folder lock to remove.
+    ///   - completion: Returns an empty response or an error.
+    public func deleteLock(
+        folderLockId: String,
+        completion: @escaping Callback<Void>
+    ) {
+        boxClient.delete(
+            url: URL.boxAPIEndpoint("/2.0/folder_locks/\(folderLockId)", configuration: boxClient.configuration),
             completion: ResponseHandler.default(wrapping: completion)
         )
     }

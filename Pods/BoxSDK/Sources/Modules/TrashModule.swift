@@ -31,20 +31,20 @@ public class TrashModule {
     ///     1,000.
     ///   - fields: String array of [fields](https://developer.box.com/reference#fields) to
     ///     include in the response.
+    ///   - completion: Returns an iterator of items or a BoxSDKError
     public func listItems(
         offset: Int? = nil,
         limit: Int? = nil,
-        fields: [String]? = nil,
-        completion: @escaping Callback<PagingIterator<FolderItem>>
-    ) {
-        boxClient.get(
+        fields: [String]? = nil
+    ) -> PagingIterator<FolderItem> {
+        .init(
+            client: boxClient,
             url: URL.boxAPIEndpoint("/2.0/folders/trash/items", configuration: boxClient.configuration),
             queryParameters: [
                 "offset": offset,
                 "limit": limit,
                 "fields": FieldsQueryParam(fields)
-            ],
-            completion: ResponseHandler.pagingIterator(client: boxClient, wrapping: completion)
+            ]
         )
     }
 

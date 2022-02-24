@@ -146,43 +146,46 @@ public class EventsModule {
     ///   - streamPosition: The location in the event stream from which you want to start receiving events. If no stream position specified
     ///     Box API will return all available events beginning with the oldest stream position.
     ///   - limit: The maximum number of items to return. If not specified, [default API limit](https://developer.box.com/reference#get-events-for-a-user) is used.
-    /// - Returns: Either collection of events or an error.
+    /// - Returns: An iterator of events or an error.
     public func getUserEvents(
         streamType: StreamType? = nil,
         streamPosition: StreamPosition? = nil,
-        limit: Int? = nil,
-        completion: @escaping Callback<PagingIterator<Event>>
-    ) {
-        boxClient.get(
+        limit: Int? = nil
+    ) -> PagingIterator<Event> {
+        .init(
+            client: boxClient,
             url: URL.boxAPIEndpoint("/2.0/events", configuration: boxClient.configuration),
             queryParameters: [
                 "stream_type": streamType?.description,
                 "stream_position": streamPosition?.description,
                 "limit": limit
-            ],
-            completion: ResponseHandler.pagingIterator(client: boxClient, wrapping: completion)
+            ]
         )
     }
 
-    /// Gets events for all users and content in the enterprise. Enterprise events are accessible for one year via the API,
-    /// and seven years via exported reports in the Box Admin Console.
+    /// Gets events for all users and content in the enterprise from `admin_logs` stream type.
+    /// The emphasis for this stream is on completeness over latency,
+    /// which means that Box will deliver admin events in chronological order and without duplicates,
+    /// but with higher latency.
+    /// Events with `admin_logs` stream type are accessible via this API up to one year.
+    /// This method will only work with an API connection for an enterprise admin account.
     ///
     /// - Parameters:
-    ///   - evenType: Restricts returned value to listed events.
+    ///   - eventTypes: Restricts returned value to listed events.
     ///   - createdAfter: A lower bound on the timestamp of the events returned.
     ///   - createdBefore: An upper bound on the timestamp of the events returned.
     ///   - streamPosition: The location in the event stream from which you want to start receiving events.
     ///   - limit: The maximum number of items to return.
-    /// - Returns: Either collection of events or an error.
+    /// - Returns: An iterator of events or an error.
     public func getEnterpriseEvents(
         eventTypes: [EventType]? = nil,
         createdAfter: Date? = nil,
         createdBefore: Date? = nil,
         streamPosition: StreamPosition? = nil,
-        limit: Int? = nil,
-        completion: @escaping Callback<PagingIterator<Event>>
-    ) {
-        boxClient.get(
+        limit: Int? = nil
+    ) -> PagingIterator<Event> {
+        .init(
+            client: boxClient,
             url: URL.boxAPIEndpoint("/2.0/events", configuration: boxClient.configuration),
             queryParameters: [
                 "stream_type": "admin_logs",
@@ -191,8 +194,36 @@ public class EventsModule {
                 "created_before": createdBefore?.iso8601,
                 "stream_position": streamPosition?.description,
                 "limit": limit
-            ],
-            completion: ResponseHandler.pagingIterator(client: boxClient, wrapping: completion)
+            ]
+        )
+    }
+
+    /// Gets events for all users and content in the enterprise from `admin_logs_streaming` stream type.
+    /// The emphasis for this feed is on low latency rather than chronological accuracy, which means that Box may return
+    /// events more than once and out of chronological order. Events are returned via the API around 12 seconds after they
+    /// are processed by Box (the 12 seconds buffer ensures that new events are not written after your cursor position).
+    /// Events with `admin_logs_streaming` stream type are accessible via this API up to two weeks only.
+    /// This method will only work with an API connection for an enterprise admin account.
+    ///
+    /// - Parameters:
+    ///   - eventTypes: Restricts returned value to listed events.
+    ///   - streamPosition: The location in the event stream from which you want to start receiving events.
+    ///   - limit: The maximum number of items to return.
+    /// - Returns: An iterator of events or an error.
+    public func getEnterpriseEventsStreaming(
+        eventTypes: [EventType]? = nil,
+        streamPosition: StreamPosition? = nil,
+        limit: Int? = nil
+    ) -> PagingIterator<Event> {
+        .init(
+            client: boxClient,
+            url: URL.boxAPIEndpoint("/2.0/events", configuration: boxClient.configuration),
+            queryParameters: [
+                "stream_type": "admin_logs_streaming",
+                "event_type": eventTypes?.map { $0.description }.queryParamValue,
+                "stream_position": streamPosition?.description,
+                "limit": limit
+            ]
         )
     }
 

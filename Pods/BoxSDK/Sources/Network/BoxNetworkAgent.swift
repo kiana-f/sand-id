@@ -146,7 +146,7 @@ public class BoxNetworkAgent: NSObject, NetworkAgentProtocol {
                 completion: completion
             )
         }
-
+        request.task(task)
         // Key value observer: Observer attaches to Progress object on task. Every time the Progress object updates, the callback is called
         observation = task.progress.observe(\Progress.fractionCompleted, options: [.new]) { progress, _ in
             request.progress(progress)
@@ -195,7 +195,7 @@ public class BoxNetworkAgent: NSObject, NetworkAgentProtocol {
                 completion: completion
             )
         }
-
+        request.task(task)
         // Key value observer: Observer attaches to Progress object on task. Every time the Progress object updates, the callback is called
         observation = task.progress.observe(\Progress.fractionCompleted, options: [.new]) { progress, _ in
             request.progress(progress)
@@ -256,7 +256,8 @@ public class BoxNetworkAgent: NSObject, NetworkAgentProtocol {
                     parameters[part.name] = String(decoding: data, as: UTF8.self)
                 case let .stream(stream):
                     guard let unwrapFileName = part.fileName,
-                        let unwrapMimeType = part.mimeType else {
+                          let unwrapMimeType = part.mimeType
+                    else {
                         fatalError("Could not get file name or type from multipart request body - \(part)")
                     }
                     partName = part.name

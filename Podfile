@@ -6,5 +6,5 @@ target 'SandID' do
   use_frameworks!
 
   # Pods for SandID
-pod 'BoxSDK', '~> 3.0'
+pod 'BoxSDK', '~> 5.0'
 end

@@ -401,15 +401,15 @@ public class UsersModule {
     ///   - offset: The offset of the item at which to begin the response. See [offset-based paging]
     ///     (https://developer.box.com/reference#section-offset-based-paging) for details.
     ///   - limit: The maximum number of items to return.
+    ///   - completion: Returns an iterator of users or a BoxSDKError
     public func listForEnterprise(
         filterTerm: String? = nil,
         fields: [String]? = nil,
         usemarker: Bool? = nil,
         marker: String? = nil,
         offset: Int? = nil,
-        limit: Int? = nil,
-        completion: @escaping Callback<PagingIterator<User>>
-    ) {
+        limit: Int? = nil
+    ) -> PagingIterator<User> {
 
         var queryParams: QueryParameters = [
             "filter_term": filterTerm,
@@ -425,10 +425,10 @@ public class UsersModule {
             queryParams["offset"] = offset
         }
 
-        boxClient.get(
+        return .init(
+            client: boxClient,
             url: URL.boxAPIEndpoint("/2.0/users", configuration: boxClient.configuration),
-            queryParameters: queryParams,
-            completion: ResponseHandler.pagingIterator(client: boxClient, wrapping: completion)
+            queryParameters: queryParams
         )
     }
 

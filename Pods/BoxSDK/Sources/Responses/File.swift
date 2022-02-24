@@ -34,6 +34,11 @@ public class File: BoxModel {
     // MARK: - Properties
 
     public private(set) var rawData: [String: Any]
+    /// This alt resoure type is a workaround for a bug in the  API.
+    /// According to documentation https://developer.box.com/reference/get-retention-policy-assignments-id-file-versions-under-retention/
+    /// the API shold return a list of files with file versions.  But the `type` field in outer item is `file_version` instead of `file` what is a bug.
+    /// So to fix that we need to treat `file_version` as a `file` in this particular case.
+    private static var alternativeResourceType: String = "file_version"
     private static var resourceType: String = "file"
     /// Box item type
     public var type: String
@@ -75,6 +80,8 @@ public class File: BoxModel {
     public let contentModifiedAt: Date?
     /// Whether the file is a package. Used for Mac Packages used by iWorks.
     public let isPackage: Bool?
+    /// User's name at the time of upload
+    public let uploaderDisplayName: String?
     /// The user who first created this file.
     public let createdBy: User?
     /// The user who last updated this file.
@@ -110,6 +117,8 @@ public class File: BoxModel {
     public let allowedInviteeRoles: [CollaborationRole]?
     /// Digital assets created for this file.
     public let representations: EntryContainerInnerModel<FileRepresentation>?
+    /// Details about the classification applied to a Box file
+    public let classification: Classification?
 
     /// Initializer.
     ///
@@ -121,8 +130,8 @@ public class File: BoxModel {
             throw BoxCodingError(message: .typeMismatch(key: "type"))
         }
 
-        guard itemType == File.resourceType else {
-            throw BoxCodingError(message: .valueMismatch(key: "type", value: itemType, acceptedValues: [File.resourceType]))
+        guard [File.resourceType, File.alternativeResourceType].contains(itemType) else {
+            throw BoxCodingError(message: .valueMismatch(key: "type", value: itemType, acceptedValues: [File.resourceType, File.alternativeResourceType]))
         }
 
         rawData = json
@@ -146,6 +155,7 @@ public class File: BoxModel {
         contentCreatedAt = try BoxJSONDecoder.optionalDecodeDate(json: json, forKey: "content_created_at")
         contentModifiedAt = try BoxJSONDecoder.optionalDecodeDate(json: json, forKey: "content_modified_at")
         isPackage = try BoxJSONDecoder.optionalDecode(json: json, forKey: "is_package")
+        uploaderDisplayName = try BoxJSONDecoder.optionalDecode(json: json, forKey: "uploader_display_name")
         createdBy = try BoxJSONDecoder.optionalDecode(json: json, forKey: "created_by")
         modifiedBy = try BoxJSONDecoder.optionalDecode(json: json, forKey: "modified_by")
         ownedBy = try BoxJSONDecoder.optionalDecode(json: json, forKey: "owned_by")
@@ -164,5 +174,6 @@ public class File: BoxModel {
         allowedInviteeRoles = try BoxJSONDecoder.optionalDecodeEnumCollection(json: json, forKey: "allowed_invitee_roles")
         representations = try BoxJSONDecoder.optionalDecode(json: json, forKey: "representations")
         collections = json["collections"] as? [[String: String]]
+        classification = try BoxJSONDecoder.optionalDecode(json: json, forKey: "classification")
     }
 }

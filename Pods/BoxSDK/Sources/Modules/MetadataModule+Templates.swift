@@ -52,6 +52,7 @@ public extension MetadataModule {
     ///   - templateKey: A unique identifier for the template.
     ///   - displayName: The display name of the template.
     ///   - hidden: Whether this template is hidden in the UI. Defaults to false.
+    ///   - copyInstanceOnItemCopy: Whether to copy any metadata attached to a file or folder when it is copied. Defaults to false.
     ///   - fields: Definition of fields for this metadata template.
     ///   - completion: Returns success or an error if template is invalid or
     ///     the user doesn't have access to the file.
@@ -60,6 +61,7 @@ public extension MetadataModule {
         templateKey: String,
         displayName: String,
         hidden: Bool,
+        copyInstanceOnItemCopy: Bool? = nil,
         fields: [MetadataField],
         completion: @escaping Callback<MetadataTemplate>
     ) {
@@ -69,6 +71,10 @@ public extension MetadataModule {
             "displayName": displayName,
             "hidden": hidden
         ]
+
+        if let unwrappedCopyInstanceOnItemCopy = copyInstanceOnItemCopy {
+            json["copyInstanceOnItemCopy"] = unwrappedCopyInstanceOnItemCopy
+        }
 
         json["fields"] = fields.map { $0.bodyDictWithDefaultKeys }
 
@@ -130,16 +136,15 @@ public extension MetadataModule {
     func listEnterpriseTemplates(
         scope: String,
         marker: String? = nil,
-        limit: Int? = nil,
-        completion: @escaping Callback<PagingIterator<MetadataTemplate>>
-    ) {
-        boxClient.get(
+        limit: Int? = nil
+    ) -> PagingIterator<MetadataTemplate> {
+        .init(
+            client: boxClient,
             url: URL.boxAPIEndpoint("/2.0/metadata_templates/\(scope)", configuration: boxClient.configuration),
             queryParameters: [
                 "marker": marker,
                 "limit": limit
-            ],
-            completion: ResponseHandler.pagingIterator(client: boxClient, wrapping: completion)
+            ]
         )
     }
 }

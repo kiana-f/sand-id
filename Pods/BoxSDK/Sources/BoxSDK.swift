@@ -51,9 +51,12 @@ public class BoxSDK {
     ///     log in to your Box developer console and click the Edit Application link for the application you're working with.
     ///     In the OAuth 2 Parameters section of the configuration page, find the item labeled "client_secret".
     ///     The text of that item is your application's client secret.
-    public init(clientId: String, clientSecret: String) {
+    ///   - callbackURL: An optional custom callback URL string. The URL to which Box redirects the browser when authentication completes.
+    ///     The user's actual interaction with your application begins when Box redirects to this URL.
+    ///     If not specified, the default URL is used, in the format of `boxsdk-CLIENTID://boxsdkoauth2redirect`, where CLIENTID is replaced with the value of the `clientId` parameter.
+    public init(clientId: String, clientSecret: String, callbackURL: String? = nil) {
         // swiftlint:disable:next force_try
-        configuration = try! BoxSDKConfiguration(clientId: clientId, clientSecret: clientSecret)
+        configuration = try! BoxSDKConfiguration(clientId: clientId, clientSecret: clientSecret, callbackURL: callbackURL)
         networkAgent = BoxNetworkAgent(configuration: configuration)
         auth = AuthModule(networkAgent: networkAgent, configuration: configuration)
     }
@@ -169,14 +172,14 @@ public class BoxSDK {
         }
     }
 
-    /// Creates BoxClient in a completion with OAuth 2.0 type of authentication
-    ///
-    /// - Parameters:
-    ///   - tokenInfo: Information about token
-    ///   - tokenStore: Custom token store. To use custom store, implement TokenStore protocol.
-    ///   - context: The ViewController that is presenting the OAuth request
-    ///   - completion: Returns created standard BoxClient object or error
     #if os(iOS)
+        /// Creates BoxClient in a completion with OAuth 2.0 type of authentication
+        ///
+        /// - Parameters:
+        ///   - tokenInfo: Information about token
+        ///   - tokenStore: Custom token store. To use custom store, implement TokenStore protocol.
+        ///   - context: The ViewController that is presenting the OAuth request
+        ///   - completion: Returns created standard BoxClient object or error
         @available(iOS 13.0, *)
         public func getOAuth2Client(
             tokenInfo: TokenInfo? = nil,
@@ -357,19 +360,20 @@ public class BoxSDK {
         @available(iOS 13.0, *)
         func obtainAuthorizationCodeFromWebSession(context: ASWebAuthenticationPresentationContextProviding, completion: @escaping Callback<String>) {
             let authorizeURL = makeAuthorizeURL(state: nonce)
-            webSession = AuthenticationSession(url: authorizeURL, callbackURLScheme: defaultCallbackURL, context: context) { resultURL, error in
+            webSession = AuthenticationSession(url: authorizeURL, callbackURLScheme: URL(string: configuration.callbackURL)?.scheme, context: context) { resultURL, error in
                 guard error == nil,
-                    let successURL = resultURL else {
+                      let successURL = resultURL
+                else {
                     print(error.debugDescription)
-                    completion(.failure(BoxAPIAuthError(message: .invalidOAuthRedirectConfiguration)))
+                    completion(.failure(BoxAPIAuthError(message: .invalidOAuthRedirectConfiguration, error: error)))
                     return
                 }
 
                 let usedState = self.getURLComponentValueAt(key: "state", from: authorizeURL)
 
                 if let authorizationCode = self.getURLComponentValueAt(key: "code", from: successURL),
-                    let receivedState = self.getURLComponentValueAt(key: "state", from: successURL),
-                    receivedState == usedState {
+                   let receivedState = self.getURLComponentValueAt(key: "state", from: successURL),
+                   receivedState == usedState {
                     completion(.success(authorizationCode))
                     return
                 }
@@ -385,19 +389,20 @@ public class BoxSDK {
     func obtainAuthorizationCodeFromWebSession(completion: @escaping Callback<String>) {
         let authorizeURL = makeAuthorizeURL(state: nonce)
         #if os(iOS)
-            webSession = AuthenticationSession(url: authorizeURL, callbackURLScheme: defaultCallbackURL) { resultURL, error in
+            webSession = AuthenticationSession(url: authorizeURL, callbackURLScheme: URL(string: configuration.callbackURL)?.scheme) { resultURL, error in
                 guard error == nil,
-                    let successURL = resultURL else {
+                      let successURL = resultURL
+                else {
                     print(error.debugDescription)
-                    completion(.failure(BoxAPIAuthError(message: .invalidOAuthRedirectConfiguration)))
+                    completion(.failure(BoxAPIAuthError(message: .invalidOAuthRedirectConfiguration, error: error)))
                     return
                 }
 
                 let usedState = self.getURLComponentValueAt(key: "state", from: authorizeURL)
 
                 if let authorizationCode = self.getURLComponentValueAt(key: "code", from: successURL),
-                    let receivedState = self.getURLComponentValueAt(key: "state", from: successURL),
-                    receivedState == usedState {
+                   let receivedState = self.getURLComponentValueAt(key: "state", from: successURL),
+                   receivedState == usedState {
                     completion(.success(authorizationCode))
                     return
                 }
@@ -421,6 +426,7 @@ public extension BoxSDK {
     /// - Parameters:
     ///   - apiBaseURL: Base URL for majority of the requests.
     ///   - uploadApiBaseURL: Base URL for upload requests. If not specified, default URL is used.
+    ///   - oauth2AuthorizeURL: URL for the OAuth2 authorization page, where users are redirected to enter their credentials
     ///   - maxRetryAttempts: Maximum number of request retries in case of error result. If not specified, default value 5 is used.
     ///   - tokenRefreshThreshold: Specifies how many seconds before token expires it shuld be refreshed.
     ///     If not specified, default value 60 seconds is used.
@@ -430,6 +436,7 @@ public extension BoxSDK {
     func updateConfiguration(
         apiBaseURL: URL? = nil,
         uploadApiBaseURL: URL? = nil,
+        oauth2AuthorizeURL: URL? = nil,
         maxRetryAttempts: Int? = nil,
         tokenRefreshThreshold: TimeInterval? = nil,
         consoleLogDestination: ConsoleLogDestination? = nil,
@@ -441,6 +448,7 @@ public extension BoxSDK {
             clientSecret: configuration.clientSecret,
             apiBaseURL: apiBaseURL,
             uploadApiBaseURL: uploadApiBaseURL,
+            oauth2AuthorizeURL: oauth2AuthorizeURL,
             maxRetryAttempts: maxRetryAttempts,
             tokenRefreshThreshold: tokenRefreshThreshold,
             consoleLogDestination: consoleLogDestination,
@@ -461,15 +469,12 @@ extension BoxSDK {
     /// Creates OAuth2 authorization URL you can use in browser to authorize.
     ///
     /// - Parameters:
-    ///   - callbackURL: Custom callback URL string. The URL to which Box redirects the browser when authentication completes.
-    ///     The user's actual interaction with your application begins when Box redirects to this URL.
-    ///     If not specified, default URL is used in a format of `boxsdk-clientId://boxsdkoauth2redirect` with the real value of `clientId`.
     ///   - state: A text string that you choose. Box sends the same string to your redirect URL when authentication is complete.
     ///     This parameter is provided for your use in protecting against hijacked sessions and other attacks.
     /// - Returns: Standard URL object to be used for authorization in external browser.
-    public func makeAuthorizeURL(callbackURL: String? = nil, state: String? = nil) -> URL {
+    public func makeAuthorizeURL(state: String? = nil) -> URL {
         // swiftlint:disable:next line_length
-        var urlString = "\(configuration.oauth2AuthorizeURL)?\(BoxOAuth2ParamsKey.responseType)=\(BoxOAuth2ParamsKey.responseTypeValue)&\(BoxOAuth2ParamsKey.clientId)=\(configuration.clientId)&\(BoxOAuth2ParamsKey.redirectURL)=\(callbackURL ?? defaultCallbackURL)"
+        var urlString = "\(configuration.oauth2AuthorizeURL)?\(BoxOAuth2ParamsKey.responseType)=\(BoxOAuth2ParamsKey.responseTypeValue)&\(BoxOAuth2ParamsKey.clientId)=\(configuration.clientId)&\(BoxOAuth2ParamsKey.redirectURL)=\(configuration.callbackURL)"
 
         if let state = state {
             urlString.append("&\(BoxOAuth2ParamsKey.state)=\(state)")
@@ -487,13 +492,10 @@ extension BoxSDK {
         return String(randomCharacters)
     }
 
-    private var defaultCallbackURL: String {
-        return "boxsdk-\(configuration.clientId)://boxsdkoauth2redirect"
-    }
-
     private func getURLComponentValueAt(key: String, from url: URL?) -> String? {
         guard let url = url, let urlComponent = NSURLComponents(string: url.absoluteString)?.queryItems?.first(where: { $0.name == key }),
-            let value = urlComponent.value else {
+              let value = urlComponent.value
+        else {
             return nil
         }
         return value

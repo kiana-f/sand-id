@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import UIKit
 
 // swiftlint:disable:next convenience_type
 class BoxJSONDecoder {
 
-    private static func extractJSON<T>(json: [String: Any], key: String) throws -> T {
+    static func extractJSON<T>(json: [String: Any], key: String) throws -> T {
         guard let objectJSON = json[key] else {
             throw BoxCodingError(message: .notPresent(key: key))
         }
@@ -23,7 +24,7 @@ class BoxJSONDecoder {
         return object
     }
 
-    private static func optionalExtractJSON<T>(json: [String: Any], key: String) throws -> T? {
+    static func optionalExtractJSON<T>(json: [String: Any], key: String) throws -> T? {
         guard let objectJSON = json[key] else {
             return nil
         }
@@ -149,6 +150,33 @@ class BoxJSONDecoder {
         }
 
         return url
+    }
+
+    static func optionalDecodeColor(json: [String: Any], forKey key: String) throws -> UIColor? {
+        guard let value: String = try optionalExtractJSON(json: json, key: key), !value.isEmpty else {
+            return nil
+        }
+
+        guard let color = UIColor(hex: value) else {
+            throw BoxCodingError(message: .invalidValueFormat(key: key))
+        }
+
+        return color
+    }
+
+    static func optionalDecodeZip<T>(json: [[String: Any]]) throws -> T? where T: BoxModel {
+        var modelJSON: [String: Any] = [:]
+        modelJSON["conflict"] = json
+
+        return try decode(json: modelJSON)
+    }
+
+    static func optionalDecodeZipCollection<T>(json: [String: Any], forKey key: String) throws -> [T]? where T: BoxModel {
+        guard let modelCollectionJSON: [[[String: Any]]] = try optionalExtractJSON(json: json, key: key) else {
+            return nil
+        }
+
+        return try modelCollectionJSON.compactMap { try optionalDecodeZip(json: $0) }
     }
 
     // MARK: - Decodes

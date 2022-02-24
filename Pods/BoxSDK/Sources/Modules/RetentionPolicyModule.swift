@@ -128,10 +128,10 @@ public class RetentionPoliciesModule {
         type: RetentionPolicyType? = nil,
         createdByUserId: String? = nil,
         marker: String? = nil,
-        limit: Int? = nil,
-        completion: @escaping Callback<PagingIterator<RetentionPolicyEntry>>
-    ) {
-        boxClient.get(
+        limit: Int? = nil
+    ) -> PagingIterator<RetentionPolicyEntry> {
+        .init(
+            client: boxClient,
             url: URL.boxAPIEndpoint("/2.0/retention_policies", configuration: boxClient.configuration),
             queryParameters: [
                 "policy_name": name,
@@ -139,8 +139,7 @@ public class RetentionPoliciesModule {
                 "created_by_user_id": createdByUserId,
                 "marker": marker,
                 "limit": limit
-            ],
-            completion: ResponseHandler.pagingIterator(client: boxClient, wrapping: completion)
+            ]
         )
     }
 
@@ -199,22 +198,67 @@ public class RetentionPoliciesModule {
     ///   - marker: The position marker at which to begin the response. See [marker-based paging]
     ///     (https://developer.box.com/reference#section-marker-based-paging) for details.
     ///   - limit: The maximum number of items to return. The default is 100.
-    /// - Returns: Returns either a list of the retention policy assignments associated with the specified retention policy or an error.
+    /// - Returns: Returns a pagination iterator to fetch a list of the retention policy assignments associated with the specified retention policy.
     public func listAssignments(
         policyId id: String,
         type: RetentionPolicyType? = nil,
         marker: String? = nil,
-        limit: Int? = nil,
-        completion: @escaping Callback<PagingIterator<RetentionPolicyAssignment>>
-    ) {
-        boxClient.get(
+        limit: Int? = nil
+    ) -> PagingIterator<RetentionPolicyAssignment> {
+        .init(
+            client: boxClient,
             url: URL.boxAPIEndpoint("/2.0/retention_policies/\(id)/assignments", configuration: boxClient.configuration),
             queryParameters: [
                 "policy_type": type?.description,
                 "marker": marker,
                 "limit": limit
-            ],
-            completion: ResponseHandler.pagingIterator(client: boxClient, wrapping: completion)
+            ]
+        )
+    }
+
+    /// Retrieves all files under retention for a retention policy assignment.
+    ///
+    /// - Parameters:
+    ///   - retentionPolicyAssignmentId: The id of the retention policy assignment.
+    ///   - limit: The maximum number of items to return in a page.
+    ///   - marker: The position marker at which to begin the response. See [marker-based paging]
+    ///     (https://developer.box.com/reference#section-marker-based-paging) for details.
+    /// - Returns: Returns a pagination iterator to fetch all files under retention.
+    public func listFilesUnderRetentionForAssignment(
+        retentionPolicyAssignmentId id: String,
+        limit: Int? = nil,
+        marker: String? = nil
+    ) -> PagingIterator<File> {
+        .init(
+            client: boxClient,
+            url: URL.boxAPIEndpoint("/2.0/retention_policy_assignments/\(id)/files_under_retention", configuration: boxClient.configuration),
+            queryParameters: [
+                "marker": marker,
+                "limit": limit
+            ]
+        )
+    }
+
+    /// Retrieves all file versions under retention placed in the file objects for a retention policy assignment .
+    ///
+    /// - Parameters:
+    ///   - retentionPolicyAssignmentId: The id of the retention policy assignment.
+    ///   - limit: The maximum number of items to return in a page.
+    ///   - marker: The position marker at which to begin the response. See [marker-based paging]
+    ///     (https://developer.box.com/reference#section-marker-based-paging) for details.
+    /// - Returns: Returns a pagination iterator to fetch all file versions under retention .
+    public func listFileVersionsUnderRetentionForAssignment(
+        retentionPolicyAssignmentId id: String,
+        limit: Int? = nil,
+        marker: String? = nil
+    ) -> PagingIterator<File> {
+        .init(
+            client: boxClient,
+            url: URL.boxAPIEndpoint("/2.0/retention_policy_assignments/\(id)/file_versions_under_retention", configuration: boxClient.configuration),
+            queryParameters: [
+                "marker": marker,
+                "limit": limit
+            ]
         )
     }
 }

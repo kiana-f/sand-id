@@ -6,11 +6,13 @@
 //  Copyright © 2019 box. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 import Foundation
 
-// Defines user or enterprise event type
+/// Defines user or enterprise event type
 public enum EventType: BoxEnum {
-
+    // swiftlint:disable:previous type_body_length
     // MARK: - User events
 
     /// A folder or file was created.
@@ -68,9 +70,9 @@ public enum EventType: BoxEnum {
     /// 2 factor authentication enabled by user.
     case twoFactorEnabled
     /// Free user accepts invitation to become a managed user.
-    case masterInviteAccepted
+    case adminInviteAccepted
     /// Free user rejects invitation to become a managed user.
-    case masterInviteRejected
+    case adminInviteRejected
     /// Granted Box access to account.
     case accessGranted
     /// Revoke Box access to account.
@@ -170,7 +172,9 @@ public enum EventType: BoxEnum {
     case userAdminRoleChanged
     /// A collaborator violated an admin-set upload policy
     case contentWorkflowUploadPolicyViolated
-    // Creation of metadata instance.
+    /// A content was accessed by a user.
+    case contentAccessed
+    /// Creation of metadata instance.
     case metadataInstanceCreated
     /// Update of metadata instance.
     case matadataInstanceUpdated
@@ -236,10 +240,22 @@ public enum EventType: BoxEnum {
     case abnormalDownloadActivity
     /// Folders were removed from a group in the Admin console.
     case itemsRemovedFromGroup
-    /// Folders were added to a group in the Admin console.
-    case itemsAddedToGroup
     /// A watermarked file was downloaded.
     case watermarkedFileDownloaded
+    /// When a JWT application has been authorized or reauthorized
+    case enterpriseAppAuthorizationUpdated
+    /// A Shield justification is approved
+    case shieldJustificationApproved
+    /// Shield detected an anomalous download, session, location, or malicious content based on enterprise Shield rules
+    case shieldAlert
+    /// Access to an external collaboration is blocked
+    case shieldAccessBlocked
+    /// Access to an external collaboration is blocked due to missing a justification
+    case shieldBlockedMissingJustification
+    /// An invite to externally collaborate is blocked
+    case shieldInviteBlocked
+    /// An invite to externally collaborate is blocked due to missing a justification
+    case shieldInviteBlockedMissingJustification
 
     // MARK: - Custom value
 
@@ -307,9 +323,9 @@ public enum EventType: BoxEnum {
         case "ENABLE_TWO_FACTOR_AUTH":
             self = .twoFactorEnabled
         case "MASTER_INVITE_ACCEPT":
-            self = .masterInviteAccepted
+            self = .adminInviteAccepted
         case "MASTER_INVITE_REJECT":
-            self = .masterInviteRejected
+            self = .adminInviteRejected
         case "ACCESS_GRANTED":
             self = .accessGranted
         case "ACCESS_REVOKED":
@@ -376,6 +392,8 @@ public enum EventType: BoxEnum {
             self = .userAdminRoleChanged
         case "CONTENT_WORKFLOW_UPLOAD_POLICY_VIOLATION":
             self = .contentWorkflowUploadPolicyViolated
+        case "CONTENT_ACCESS":
+            self = .contentAccessed
         case "METADATA_INSTANCE_CREATE":
             self = .metadataInstanceCreated
         case "METADATA_INSTANCE_UPDATE":
@@ -444,6 +462,50 @@ public enum EventType: BoxEnum {
             self = .itemsRemovedFromGroup
         case "FILE_WATERMARKED_DOWNLOAD":
             self = .watermarkedFileDownloaded
+        case "GROUP_CREATION":
+            self = .createdGroup
+        case "GROUP_DELETION":
+            self = .deletedGroup
+        case "GROUP_EDITED":
+            self = .editedGroup
+        case "EDIT_USER":
+            self = .editedUser
+        case "ADMIN_LOGIN":
+            self = .adminLogin
+        case "ADD_DEVICE_ASSOCIATION":
+            self = .addedDeviceAssocation
+        case "CHANGE_FOLDER_PERMISSION":
+            self = .changeFolderPermission
+        case "FAILED_LOGIN":
+            self = .failedLogin
+        case "LOGIN":
+            self = .login
+        case "REMOVE_DEVICE_ASSOCIATION":
+            self = .removedDeviceAssociation
+        case "DEVICE_TRUST_CHECK_FAILED":
+            self = .deviceTrustCheckFailed
+        case "TERMS_OF_SERVICE_ACCEPT":
+            self = .termsOfServiceAccepted
+        case "TERMS_OF_SERVICE_REJECT":
+            self = .termsOfServiceRejected
+        case "DOWNLOAD":
+            self = .downloaded
+        case "DELETE_USER":
+            self = .deletedUser
+        case "ENTERPRISE_APP_AUTHORIZATION_UPDATE":
+            self = .enterpriseAppAuthorizationUpdated
+        case "SHIELD_JUSTIFICATION_APPROVAL":
+            self = .shieldJustificationApproved
+        case "SHIELD_ALERT":
+            self = .shieldAlert
+        case "SHIELD_EXTERNAL_COLLAB_ACCESS_BLOCKED":
+            self = .shieldAccessBlocked
+        case "SHIELD_EXTERNAL_COLLAB_ACCESS_BLOCKED_MISSING_JUSTIFICATION":
+            self = .shieldBlockedMissingJustification
+        case "SHIELD_EXTERNAL_COLLAB_INVITE_BLOCKED":
+            self = .shieldInviteBlocked
+        case "SHIELD_EXTERNAL_COLLAB_INVITE_BLOCKED_MISSING_JUSTIFICATION":
+            self = .shieldInviteBlockedMissingJustification
         default:
             self = .customValue(value)
         }
@@ -508,9 +570,9 @@ public enum EventType: BoxEnum {
             return "TAG_ITEM_CREATE"
         case .twoFactorEnabled:
             return "ENABLE_TWO_FACTOR_AUTH"
-        case .masterInviteAccepted:
+        case .adminInviteAccepted:
             return "MASTER_INVITE_ACCEPT"
-        case .masterInviteRejected:
+        case .adminInviteRejected:
             return "MASTER_INVITE_REJECT"
         case .accessGranted:
             return "ACCESS_GRANTED"
@@ -608,6 +670,8 @@ public enum EventType: BoxEnum {
             return "CHANGE_ADMIN_ROLE"
         case .contentWorkflowUploadPolicyViolated:
             return "CONTENT_WORKFLOW_UPLOAD_POLICY_VIOLATION"
+        case .contentAccessed:
+            return "CONTENT_ACCESS"
         case .metadataInstanceCreated:
             return "METADATA_INSTANCE_CREATE"
         case .matadataInstanceUpdated:
@@ -672,12 +736,24 @@ public enum EventType: BoxEnum {
             return "CONTENT_WORKFLOW_ABNORMAL_DOWNLOAD_ACTIVITY"
         case .itemsRemovedFromGroup:
             return "GROUP_REMOVE_ITEM"
-        case .itemsAddedToGroup:
-            return "GROUP_ADD_ITEM"
         case .watermarkedFileDownloaded:
             return "FILE_WATERMARKED_DOWNLOAD"
         case .itemAddedToGroup:
             return "GROUP_ADD_ITEM"
+        case .enterpriseAppAuthorizationUpdated:
+            return "ENTERPRISE_APP_AUTHORIZATION_UPDATE"
+        case .shieldJustificationApproved:
+            return "SHIELD_JUSTIFICATION_APPROVAL"
+        case .shieldAlert:
+            return "SHIELD_ALERT"
+        case .shieldAccessBlocked:
+            return "SHIELD_EXTERNAL_COLLAB_ACCESS_BLOCKED"
+        case .shieldBlockedMissingJustification:
+            return "SHIELD_EXTERNAL_COLLAB_ACCESS_BLOCKED_MISSING_JUSTIFICATION"
+        case .shieldInviteBlocked:
+            return "SHIELD_EXTERNAL_COLLAB_INVITE_BLOCKED"
+        case .shieldInviteBlockedMissingJustification:
+            return "SHIELD_EXTERNAL_COLLAB_INVITE_BLOCKED_MISSING_JUSTIFICATION"
         case let .customValue(value):
             return value
         }

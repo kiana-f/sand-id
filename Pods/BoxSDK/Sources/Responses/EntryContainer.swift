@@ -65,14 +65,25 @@ public class EntryContainer<T: BoxModel>: BoxModel {
         totalCount = try BoxJSONDecoder.optionalDecode(json: json, forKey: "total_count")
         offset = try BoxJSONDecoder.optionalDecode(json: json, forKey: "offset")
         nextMarker = try BoxJSONDecoder.optionalDecode(json: json, forKey: "next_marker")
-        limit = try BoxJSONDecoder.optionalDecode(json: json, forKey: "limit")
         entries = try BoxJSONDecoder.decodeCollection(json: json, forKey: "entries")
 
-        do {
-            let intStreamPosition: Int = try BoxJSONDecoder.decode(json: json, forKey: "next_stream_position")
-            nextStreamPosition = String(intStreamPosition)
+        // The `limit` field is inconsistent in the API
+        // Sometimes it could be an Int and another time it could be a String.
+        // So as a work around we should check both of these types and try to decode original value.
+        if let limitValue = json["limit"] {
+            limit = Int(String(describing: limitValue))
         }
-        catch {
+        else {
+            limit = nil
+        }
+
+        // The `nextStreamPosition` field is inconsistent in the API
+        // Sometimes it could be an Int and another time it could be a String.
+        // So as a work around we should check both of these types and try to decode original value.
+        if let nextStreamPositionValue = json["next_stream_position"] {
+            nextStreamPosition = String(describing: nextStreamPositionValue)
+        }
+        else {
             nextStreamPosition = nil
         }
 

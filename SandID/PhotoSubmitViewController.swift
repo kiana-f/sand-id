@@ -14,6 +14,24 @@ class PhotoSubmitViewController: UIViewController {
 
         // Do any additional setup after loading the view.
     }
+	
+	private func uploadImage() {
+//		let data = "test content".data(using: .utf8)
+//
+//		let task: BoxUploadTask = client.files.upload(data: data, name: "Test File.txt", parentId: "0") { (result: Result<File, BoxSDKError>) in
+//			guard case let .success(file) = result else {
+//				print("Error uploading file")
+//				return
+//			}
+//
+//			print("File \(file.name) was uploaded at \(file.createdAt) into \"\(file.parent.name)\"")
+//		}
+
+		// To cancel upload
+//		if someConditionIsSatisfied {
+//			task.cancel()
+//		}
+	}
     
 
     /*

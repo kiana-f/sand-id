@@ -10,6 +10,8 @@ import BoxSDK
 
 class PhotoSubmitViewController: UIViewController {
 	
+	var capturedImage: UIImage!
+	
 	@IBOutlet var uploadButton: UIButton!
 
     override func viewDidLoad() {
@@ -25,17 +27,19 @@ class PhotoSubmitViewController: UIViewController {
 	}
 	
 	private func uploadImage() {
-		let data: Data = "test content".data(using: .utf8) ?? Data(base64Encoded: "error")!
+		let data2: Data = capturedImage.pngData()!
 		
-		let client = BoxSDK.getClient(token: "wojV7ByCxsIvkVvs8X8xT7IVDfFcutlw")
-
-		let task: BoxUploadTask = client.files.upload(data: data, name: "Test File.txt", parentId: "0") { (result: Result<File, BoxSDKError>) in
+		let token = ProcessInfo.processInfo.environment["BOX_API_TOKEN"]!
+		
+		let client = BoxSDK.getClient(token: token)
+		
+		let task: BoxUploadTask = client.files.upload(data: data2, name: "Test File2.png", parentId: "0") { (result: Result<File, BoxSDKError>) in
 			guard case let .success(file) = result else {
 				print("Error uploading file")
 				return
 			}
 
-			
+
 			print("File \(String(describing: file.name)) was uploaded at \(file.createdAt) into \"\(file.parent?.name)\"")
 		}
 

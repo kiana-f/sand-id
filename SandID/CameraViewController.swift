@@ -24,6 +24,8 @@ class CameraViewController: UIViewController {
 	// image view to hold captured image
 	var imageView = UIImageView()
 	
+	var capturedImage = UIImage()
+	
 	var cameraOverlayTop = UIView()
 	var cameraOverlayBottom = UIView()
 	
@@ -190,6 +192,7 @@ class CameraViewController: UIViewController {
 		print("want to submit photo")
 		if let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "PhotoSubmitVC") as? PhotoSubmitViewController {
 			print("got vc")
+			vc.capturedImage = capturedImage
 			if let navigator = self.navigationController {
 				print("got nav")
 				navigator.pushViewController(vc, animated: true)
@@ -207,11 +210,12 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 		}
 		
 		let offset = cameraOverlayTop.frame.height
-		let image = UIImage(data: data)
+		//let image = UIImage(data: data)
 		
 		session?.stopRunning()
 		
-		imageView = UIImageView(image: image)
+		capturedImage = UIImage(data: data)!
+		imageView = UIImageView(image: capturedImage)
 		imageView.contentMode = .scaleAspectFill
 		imageView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: self.view.frame.height - (offset * 4))
 		

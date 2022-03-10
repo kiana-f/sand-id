@@ -24,6 +24,9 @@ class CameraViewController: UIViewController {
 	// image view to hold captured image
 	var imageView = UIImageView()
 	
+	// captured image to pass onto next vc
+	var capturedImage = UIImage()
+	
 	var cameraOverlayTop = UIView()
 	var cameraOverlayBottom = UIView()
 	
@@ -60,6 +63,23 @@ class CameraViewController: UIViewController {
 		button.layer.shadowRadius = 10
 		return button
 	}()
+	
+	// info mark for photo specifications
+	private let infoButton: UIButton = {
+		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+		let buttonImage = UIImage(systemName: "info.circle")
+		let config = UIImage.SymbolConfiguration(pointSize: 17.0, weight: .semibold, scale: .large)
+		button.setImage(buttonImage?.withConfiguration(config), for: .normal)
+		button.tintColor = UIColor.white
+		return button
+	}()
+	
+	// pop up window displaying photo specifications
+	private let popUpWindow: PopUpWindow = {
+		let windowText = "Hold the camera between 4 to 6 inches from sample\n\nMake sure sample fills center square"
+		let window = PopUpWindow(title: "Instructions", text: windowText, buttontext: "OK")
+		return window
+	}()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,17 +93,25 @@ class CameraViewController: UIViewController {
 		view.addSubview(cameraOverlayTop)
 		view.addSubview(cameraOverlayBottom)
 		view.addSubview(shutterButton)
+		view.addSubview(infoButton)
 		
 		checkCameraPermissions()
 		
 		shutterButton.addTarget(self, action: #selector(didTapTakePhoto), for: .touchUpInside)
 		retakeButton.addTarget(self, action: #selector(tapRetakePhoto), for: .touchUpInside)
 		submitButton.addTarget(self, action: #selector(onSubmitPhoto), for: .touchUpInside)
+		infoButton.addTarget(self, action: #selector(tapInfoButton), for: .touchUpInside)
+		
+		self.present(popUpWindow, animated: true, completion: nil)
     }
 	
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		previewLayer.frame = view.bounds
+		
+		cameraOverlayTop.center = CGPoint(x: self.view.frame.width / 2, y: cameraOverlayTop.frame.height / 2)
+		
+		cameraOverlayBottom.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height - (cameraOverlayTop.frame.height / 2))
 		
 		// shutter button shape
 		shutterButton.center = CGPoint(x: view.frame.size.width/2,
@@ -91,10 +119,7 @@ class CameraViewController: UIViewController {
 		
 		retakeButton.center = CGPoint(x: 50, y: 75)
 		submitButton.center = CGPoint(x: self.view.frame.width - 75, y: 80)
-		
-		cameraOverlayTop.center = CGPoint(x: self.view.frame.width / 2, y: cameraOverlayTop.frame.height / 2)
-		
-		cameraOverlayBottom.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height - (cameraOverlayTop.frame.height / 2))
+		infoButton.center = CGPoint(x: view.bounds.minX + infoButton.frame.width, y: (cameraOverlayTop.frame.height / 4) * 3)
 	}
 	
 	private func createOverlays() {
@@ -169,6 +194,11 @@ class CameraViewController: UIViewController {
 		}
 	}
 	
+	// display info for photo specifications
+	@objc private func tapInfoButton() {
+		self.present(popUpWindow, animated: true, completion: nil)
+	}
+	
 	// capture photo
 	@objc private func didTapTakePhoto() {
 		output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
@@ -179,6 +209,7 @@ class CameraViewController: UIViewController {
 		print("tapped retake photo button")
 		imageView.removeFromSuperview()
 		view.addSubview(shutterButton)
+		view.addSubview(infoButton)
 		self.navigationItem.setHidesBackButton(false, animated: false)
 		cameraOverlayTop.layer.opacity = 0.5
 		cameraOverlayBottom.layer.opacity = 0.5
@@ -190,6 +221,7 @@ class CameraViewController: UIViewController {
 		print("want to submit photo")
 		if let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "PhotoSubmitVC") as? PhotoSubmitViewController {
 			print("got vc")
+			vc.capturedImage = capturedImage
 			if let navigator = self.navigationController {
 				print("got nav")
 				navigator.pushViewController(vc, animated: true)
@@ -207,15 +239,17 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 		}
 		
 		let offset = cameraOverlayTop.frame.height
-		let image = UIImage(data: data)
+		//let image = UIImage(data: data)
 		
 		session?.stopRunning()
 		
-		imageView = UIImageView(image: image)
+		capturedImage = UIImage(data: data)!
+		imageView = UIImageView(image: capturedImage)
 		imageView.contentMode = .scaleAspectFill
 		imageView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: self.view.frame.height - (offset * 4))
 		
 		shutterButton.removeFromSuperview()
+		infoButton.removeFromSuperview()
 		
 		let continueButton = UIBarButtonItem(customView: submitButton)
 		self.navigationItem.setRightBarButton(continueButton, animated: true)

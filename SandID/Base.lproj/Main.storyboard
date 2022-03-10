@@ -76,16 +76,22 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hoa-He-rrS">
-                                <rect key="frame" x="147" y="433" width="122" height="31"/>
+                                <rect key="frame" x="107" y="433" width="200" height="31"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Submit Sample"/>
+                                <connections>
+                                    <action selector="onUploadData:" destination="hrB-fR-A5Y" eventType="touchUpInside" id="KkV-sJ-4Ja"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="VxB-ln-HLi"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
                     <navigationItem key="navigationItem" id="hfN-zb-YbO"/>
+                    <connections>
+                        <outlet property="uploadButton" destination="hoa-He-rrS" id="Rex-kJ-Ucd"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b2k-Ab-EVV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

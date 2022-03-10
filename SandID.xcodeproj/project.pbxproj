@@ -18,6 +18,7 @@
 		9D1F3B0527A0BB6400087C35 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1F3B0427A0BB6400087C35 /* CameraViewController.swift */; };
 		9D1F3B0727B4CD8200087C35 /* PhotoSubmitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1F3B0627B4CD8200087C35 /* PhotoSubmitViewController.swift */; };
 		9D9DC30527C73704000B566B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 9D9DC30427C73704000B566B /* .gitignore */; };
+		9D9DC30727D9B075000B566B /* PopUpWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D9DC30627D9B075000B566B /* PopUpWindow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 		9D1F3B0427A0BB6400087C35 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		9D1F3B0627B4CD8200087C35 /* PhotoSubmitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSubmitViewController.swift; sourceTree = "<group>"; };
 		9D9DC30427C73704000B566B /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = SOURCE_ROOT; };
+		9D9DC30627D9B075000B566B /* PopUpWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpWindow.swift; sourceTree = "<group>"; };
 		C560F70F8CCC89BFCCD12D01 /* Pods_SandID.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SandID.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3FF5352A958033D32A93916 /* Pods-SandID.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SandID.release.xcconfig"; path = "Target Support Files/Pods-SandID/Pods-SandID.release.xcconfig"; sourceTree = "<group>"; };
 		E6C2F2196088D57F87E1FBBD /* Pods-SandID.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SandID.debug.xcconfig"; path = "Target Support Files/Pods-SandID/Pods-SandID.debug.xcconfig"; sourceTree = "<group>"; };
@@ -75,6 +77,7 @@
 				9D12B3A62797D2C3007BF1BC /* SceneDelegate.swift */,
 				9D12B3A82797D2C3007BF1BC /* ViewController.swift */,
 				9D1F3B0427A0BB6400087C35 /* CameraViewController.swift */,
+				9D9DC30627D9B075000B566B /* PopUpWindow.swift */,
 				9D12B3AA2797D2C3007BF1BC /* Main.storyboard */,
 				9D1F3B0627B4CD8200087C35 /* PhotoSubmitViewController.swift */,
 				9D9DC30427C73704000B566B /* .gitignore */,
@@ -224,6 +227,7 @@
 				9D1F3B0527A0BB6400087C35 /* CameraViewController.swift in Sources */,
 				9D12B3A52797D2C3007BF1BC /* AppDelegate.swift in Sources */,
 				9D12B3AF2797D2C3007BF1BC /* SandID.xcdatamodeld in Sources */,
+				9D9DC30727D9B075000B566B /* PopUpWindow.swift in Sources */,
 				9D12B3A72797D2C3007BF1BC /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

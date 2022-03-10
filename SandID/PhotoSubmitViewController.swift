@@ -38,9 +38,7 @@ class PhotoSubmitViewController: UIViewController {
 				print("Error uploading file")
 				return
 			}
-
-
-			print("File \(String(describing: file.name)) was uploaded at \(file.createdAt) into \"\(file.parent?.name)\"")
+			
 		}
 
 		 //To cancel upload

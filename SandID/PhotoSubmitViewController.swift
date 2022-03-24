@@ -38,7 +38,6 @@ class PhotoSubmitViewController: UIViewController {
 				print("Error uploading file")
 				return
 			}
-			
 		}
 
 		 //To cancel upload

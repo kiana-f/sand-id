@@ -30,10 +30,9 @@ class PhotoSubmitViewController: UIViewController {
 		let data2: Data = capturedImage.pngData()!
 		
 		let token = ProcessInfo.processInfo.environment["BOX_API_TOKEN"]!
-		
 		let client = BoxSDK.getClient(token: token)
 		
-		let task: BoxUploadTask = client.files.upload(data: data2, name: "Test File2.png", parentId: "0") { (result: Result<File, BoxSDKError>) in
+		client.files.upload(data: data2, name: "Test File5.png", parentId: "0") { (result: Result<File, BoxSDKError>) in
 			guard case let .success(file) = result else {
 				print("Error uploading file")
 				return

@@ -30,6 +30,8 @@ class CameraViewController: UIViewController {
 	var cameraOverlayTop = UIView()
 	var cameraOverlayBottom = UIView()
 	
+	var captureSquare = UIView()
+	
 	// shutter button
 	private let shutterButton: UIButton = {
 		let button = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
@@ -85,11 +87,13 @@ class CameraViewController: UIViewController {
         super.viewDidLoad()
 		
 		createOverlays()
+		createCaptureSquare()
 
 		// just incase
 		view.backgroundColor = .black
 		
 		view.layer.addSublayer(previewLayer)
+		view.addSubview(captureSquare)
 		view.addSubview(cameraOverlayTop)
 		view.addSubview(cameraOverlayBottom)
 		view.addSubview(shutterButton)
@@ -114,7 +118,7 @@ class CameraViewController: UIViewController {
 		cameraOverlayBottom.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height - (cameraOverlayTop.frame.height / 2))
 		
 		// shutter button shape
-		shutterButton.center = CGPoint(x: view.frame.size.width/2,
+		shutterButton.center = CGPoint(x: view.frame.size.width / 2,
 									   y: view.frame.size.height - 100)
 		
 		retakeButton.center = CGPoint(x: 50, y: 75)
@@ -123,18 +127,30 @@ class CameraViewController: UIViewController {
 	}
 	
 	private func createOverlays() {
+		let overlayHeight = (self.view.frame.height - self.view.frame.width) / 2
 		cameraOverlayTop = {
-			let overlay = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height / 4))
+			let overlay = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: overlayHeight))
 			overlay.layer.opacity = 0.5
 			overlay.backgroundColor = .black
 			return overlay
 		}()
 		
 		cameraOverlayBottom = {
-			let overlay = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height / 4))
+			let overlay = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: overlayHeight))
 			overlay.layer.opacity = 0.5
 			overlay.backgroundColor = .black
 			return overlay
+		}()
+	}
+	
+	private func createCaptureSquare() {
+		let overlayHeight = (self.view.frame.height - self.view.frame.width) / 2
+		let squareWidth = self.view.frame.width
+		captureSquare = {
+			let capSquare = UIView(frame: CGRect(x: 0, y: overlayHeight, width: squareWidth, height: squareWidth))
+			capSquare.layer.borderWidth = 5.0
+			capSquare.layer.borderColor = CGColor.init(red: 0, green: 0, blue: 255, alpha: 1)
+			return capSquare
 		}()
 	}
 	
@@ -208,6 +224,7 @@ class CameraViewController: UIViewController {
 	@objc private func tapRetakePhoto() {
 		print("tapped retake photo button")
 		imageView.removeFromSuperview()
+		view.addSubview(captureSquare)
 		view.addSubview(shutterButton)
 		view.addSubview(infoButton)
 		self.navigationItem.setHidesBackButton(false, animated: false)
@@ -235,21 +252,18 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 	// photo display after capture
 	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
 		guard let data = photo.fileDataRepresentation() else {
+			// something went wrong when capturing photo
 			return
 		}
 		
-		let offset = cameraOverlayTop.frame.height
-		//let image = UIImage(data: data)
-		
 		session?.stopRunning()
-		
-		capturedImage = UIImage(data: data)!
-		imageView = UIImageView(image: capturedImage)
-		imageView.contentMode = .scaleAspectFill
-		imageView.frame = CGRect(x: 0, y: offset, width: view.frame.width, height: self.view.frame.height - (offset * 4))
+
+		let sourceImage = UIImage(data: data)
+		capturedImage = sourceImage!
 		
 		shutterButton.removeFromSuperview()
 		infoButton.removeFromSuperview()
+		captureSquare.removeFromSuperview()
 		
 		let continueButton = UIBarButtonItem(customView: submitButton)
 		self.navigationItem.setRightBarButton(continueButton, animated: true)
@@ -259,10 +273,7 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
 		self.navigationItem.setLeftBarButtonItems([retake], animated: true)
 		self.navigationItem.setHidesBackButton(true, animated: false)
 		
-		view.addSubview(imageView)
-		
 		cameraOverlayTop.layer.opacity = 1.0
 		cameraOverlayBottom.layer.opacity = 1.0
 	}
-	
 }

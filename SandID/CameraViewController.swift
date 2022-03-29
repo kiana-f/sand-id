@@ -111,38 +111,50 @@ class CameraViewController: UIViewController {
 	
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
+		let frameWidth = self.view.frame.width
+		let frameHeight = self.view.frame.height
+		let yOffset = cameraOverlayTop.frame.height
+		
 		previewLayer.frame = view.bounds
 		
-		cameraOverlayTop.center = CGPoint(x: self.view.frame.width / 2, y: cameraOverlayTop.frame.height / 2)
+		cameraOverlayTop.center = CGPoint(x: frameWidth / 2,
+										  y: yOffset / 2)
 		
-		cameraOverlayBottom.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height - (cameraOverlayTop.frame.height / 2))
+		cameraOverlayBottom.center = CGPoint(x: frameWidth / 2,
+											 y: frameHeight - (yOffset / 2))
 		
 		// shutter button shape
-		shutterButton.center = CGPoint(x: view.frame.size.width / 2,
-									   y: view.frame.size.height - 100)
+		shutterButton.center = CGPoint(x: frameWidth / 2,
+									   y: frameHeight - 100)
 		
 		retakeButton.center = CGPoint(x: 50, y: 75)
-		submitButton.center = CGPoint(x: self.view.frame.width - 75, y: 80)
-		infoButton.center = CGPoint(x: view.bounds.minX + infoButton.frame.width, y: (cameraOverlayTop.frame.height / 4) * 3)
+		submitButton.center = CGPoint(x: frameWidth - 75, y: 80)
+		infoButton.center = CGPoint(x: view.bounds.minX + infoButton.frame.width,
+									y: (yOffset / 4) * 3)
 	}
 	
+	//creates black overlays on camera preview layer
 	private func createOverlays() {
 		let overlayHeight = (self.view.frame.height - self.view.frame.width) / 2
+		let overlayWidth = self.view.frame.width
+		let overlayRect = CGRect(x: 0, y: 0, width: overlayWidth, height: overlayHeight)
+		
 		cameraOverlayTop = {
-			let overlay = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: overlayHeight))
+			let overlay = UIView(frame: overlayRect)
 			overlay.layer.opacity = 0.5
 			overlay.backgroundColor = .black
 			return overlay
 		}()
 		
 		cameraOverlayBottom = {
-			let overlay = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: overlayHeight))
+			let overlay = UIView(frame: overlayRect)
 			overlay.layer.opacity = 0.5
 			overlay.backgroundColor = .black
 			return overlay
 		}()
 	}
 	
+	//creates square outline on camera preview layer
 	private func createCaptureSquare() {
 		let overlayHeight = (self.view.frame.height - self.view.frame.width) / 2
 		let squareWidth = self.view.frame.width

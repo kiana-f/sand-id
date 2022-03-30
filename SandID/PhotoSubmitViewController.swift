@@ -32,13 +32,14 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate {
 		}
 	}
 	
+	//uploads captured image to database
 	private func uploadImage() {
 		let data2: Data = capturedImage.pngData()!
 		
 		let token = ProcessInfo.processInfo.environment["BOX_API_TOKEN"]!
 		let client = BoxSDK.getClient(token: token)
-		let fileName = locationField.text
-		client.files.upload(data: data2, name: fileName!, parentId: "0") { (result: Result<File, BoxSDKError>) in
+		let fileName = "\(String(describing: locationField.text!)).png"
+		client.files.upload(data: data2, name: fileName, parentId: "0") { (result: Result<File, BoxSDKError>) in
 			guard case let .success(file) = result else {
 				print("Error uploading file")
 				return

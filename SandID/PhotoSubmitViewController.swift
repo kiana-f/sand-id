@@ -85,6 +85,15 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 				return
 			}
 		}
+		
+		returnToInitialVC()
+		
+	}
+	
+	//Return to intial vc after uploading photo
+	private func returnToInitialVC() {
+		let navigator = self.navigationController
+		navigator?.popToRootViewController(animated: true)
 	}
 	
 	//Handles permissions for using location of user's device

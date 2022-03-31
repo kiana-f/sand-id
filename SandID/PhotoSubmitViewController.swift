@@ -18,7 +18,9 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 	@IBOutlet var uploadButton: UIButton!
 	@IBOutlet var locationField: UITextField!
 	@IBOutlet var textInputAlert: UILabel!
+	@IBOutlet var nameInputAlert: UILabel!
 	@IBOutlet weak var currLocationButton: UIButton!
+	@IBOutlet weak var nameField: UITextField!
 	
 	let locationManager = CLLocationManager()
 
@@ -27,6 +29,7 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 
 		locationField.delegate = self
 		textInputAlert.isHidden = true
+		nameInputAlert.isHidden = true
 		locationManager.delegate = self
     }
 	
@@ -36,9 +39,11 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 		if let location = locations.first {
 			let latitude = location.coordinate.latitude
 			let longitude = location.coordinate.longitude
-			photoLatitude = "\(String(describing: latitude))"
-			photoLongitude = "\(String(describing: longitude))"
-			locationField.text = "\(String(describing: latitude)), \(String(describing: longitude))"
+			let latRound = round(latitude * 1000000) / 1000000.0
+			let longRound = round(longitude * 1000000) / 1000000.0
+			photoLatitude = "\(String(describing: latRound))"
+			photoLongitude = "\(String(describing: longRound))"
+			locationField.text = "\(String(describing: latRound)), \(String(describing: longRound))"
 		}
 		print("updated location")
 	}
@@ -61,8 +66,12 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 	//button action for uploading image
 	@IBAction func onUploadData(_ sender: Any) {
 		print("touched upload button")
-		if locationField.text == "" {
-			textInputAlert.isHidden = false
+		let locationEmpty = locationField.text == ""
+		let nameEmpty = nameField.text == ""
+		
+		if locationEmpty || nameEmpty {
+			textInputAlert.isHidden = !locationEmpty
+			nameInputAlert.isHidden = !nameEmpty
 		} else {
 			uploadImage()
 		}
@@ -78,7 +87,7 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 		
 		let token = ProcessInfo.processInfo.environment["BOX_API_TOKEN"]!
 		let client = BoxSDK.getClient(token: token)
-		let fileName = "\(String(describing: locationField.text!)).png"
+		let fileName = "\(String(describing: nameField.text!))_\(String(describing: locationField.text!)).png"
 		client.files.upload(data: data, name: fileName, parentId: "159741120027") { (result: Result<File, BoxSDKError>) in
 			guard case let .success(file) = result else {
 				print("Error uploading file")

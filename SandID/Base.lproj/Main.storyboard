@@ -102,12 +102,26 @@
                                 <color key="textColor" systemColor="systemRedColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wTn-jV-0Ek">
+                                <rect key="frame" x="62" y="379" width="211" height="31"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Use Current Location" cornerStyle="capsule">
+                                    <backgroundConfiguration key="background">
+                                        <color key="backgroundColor" systemColor="systemBlueColor"/>
+                                    </backgroundConfiguration>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="onUseCurrLocation:" destination="hrB-fR-A5Y" eventType="touchUpInside" id="rNY-KT-NEM"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="VxB-ln-HLi"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
                     <navigationItem key="navigationItem" id="hfN-zb-YbO"/>
                     <connections>
+                        <outlet property="currLocationButton" destination="wTn-jV-0Ek" id="oQ2-U9-k66"/>
                         <outlet property="locationField" destination="Fpo-lw-Iac" id="5iB-ML-6Db"/>
                         <outlet property="textInputAlert" destination="zsu-kR-plv" id="Z4p-eR-JEv"/>
                         <outlet property="uploadButton" destination="hoa-He-rrS" id="Rex-kJ-Ucd"/>

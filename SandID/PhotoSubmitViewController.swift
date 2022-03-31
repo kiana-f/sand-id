@@ -7,22 +7,58 @@
 
 import UIKit
 import BoxSDK
+import CoreLocation
 
-class PhotoSubmitViewController: UIViewController, UITextFieldDelegate {
+class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
 	
 	var capturedImage: UIImage!
+	var photoLatitude: String?
+	var photoLongitude: String?
 	
 	@IBOutlet var uploadButton: UIButton!
 	@IBOutlet var locationField: UITextField!
 	@IBOutlet var textInputAlert: UILabel!
+	@IBOutlet weak var currLocationButton: UIButton!
+	
+	let locationManager = CLLocationManager()
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
 		locationField.delegate = self
 		textInputAlert.isHidden = true
+		locationManager.delegate = self
     }
 	
+	//updates current location coordinates
+	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+		print("updating current location")
+		if let location = locations.first {
+			let latitude = location.coordinate.latitude
+			let longitude = location.coordinate.longitude
+			photoLatitude = "\(String(describing: latitude))"
+			photoLongitude = "\(String(describing: longitude))"
+			locationField.text = "\(String(describing: latitude)), \(String(describing: longitude))"
+		}
+		print("updated location")
+	}
+	
+	//Handles when authorization changes
+	func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+		print("Location authorization status was changed")
+	}
+	
+	// Handle failure to get a user’s location
+	func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+		print("Failed to get current location")
+	}
+	
+	//button action for using current location
+	@IBAction func onUseCurrLocation(_ sender: Any) {
+		checkLocationPermissions()
+	}
+	
+	//button action for uploading image
 	@IBAction func onUploadData(_ sender: Any) {
 		print("touched upload button")
 		if locationField.text == "" {
@@ -32,24 +68,44 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate {
 		}
 	}
 	
+	private func getCurrentLocation() {
+		locationManager.requestLocation()
+	}
+	
 	//uploads captured image to database
 	private func uploadImage() {
-		let data2: Data = capturedImage.pngData()!
+		let data: Data = capturedImage.pngData()!
 		
 		let token = ProcessInfo.processInfo.environment["BOX_API_TOKEN"]!
 		let client = BoxSDK.getClient(token: token)
 		let fileName = "\(String(describing: locationField.text!)).png"
-		client.files.upload(data: data2, name: fileName, parentId: "0") { (result: Result<File, BoxSDKError>) in
+		client.files.upload(data: data, name: fileName, parentId: "0") { (result: Result<File, BoxSDKError>) in
 			guard case let .success(file) = result else {
 				print("Error uploading file")
 				return
 			}
 		}
-
-		 //To cancel upload
-//		if someConditionIsSatisfied {
-//			task.cancel()
-//		}
+	}
+	
+	//Handles permissions for using location of user's device
+	private func checkLocationPermissions() {
+		let status = locationManager.authorizationStatus
+		switch status {
+		case .authorizedAlways:
+			getCurrentLocation()
+		case .authorizedWhenInUse:
+			getCurrentLocation()
+		case .denied:
+			print("Failed to get current location: denied")
+		case .notDetermined:
+			print("requesting location when in use")
+			locationManager.requestWhenInUseAuthorization()
+			getCurrentLocation()
+		case .restricted:
+			print("Failed to get current location: restricted")
+		@unknown default:
+			print("Some unknown authorization status")
+		}
 	}
 	
 	// Called when 'return' key pressed

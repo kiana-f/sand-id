@@ -79,7 +79,7 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 		let token = ProcessInfo.processInfo.environment["BOX_API_TOKEN"]!
 		let client = BoxSDK.getClient(token: token)
 		let fileName = "\(String(describing: locationField.text!)).png"
-		client.files.upload(data: data, name: fileName, parentId: "0") { (result: Result<File, BoxSDKError>) in
+		client.files.upload(data: data, name: fileName, parentId: "159741120027") { (result: Result<File, BoxSDKError>) in
 			guard case let .success(file) = result else {
 				print("Error uploading file")
 				return

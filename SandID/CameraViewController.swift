@@ -78,7 +78,7 @@ class CameraViewController: UIViewController {
 	
 	// pop up window displaying photo specifications
 	private let popUpWindow: PopUpWindow = {
-		let windowText = "Hold the camera between 4 to 6 inches from sample\n\nMake sure sample fills center square"
+		let windowText = "Hold the camera between 4 to 6 inches (10 to 15 cm) from sample\n\nMake sure sample fills center square"
 		let window = PopUpWindow(title: "Instructions", text: windowText, buttontext: "OK")
 		return window
 	}()
@@ -161,7 +161,7 @@ class CameraViewController: UIViewController {
 		captureSquare = {
 			let capSquare = UIView(frame: CGRect(x: 0, y: overlayHeight, width: squareWidth, height: squareWidth))
 			capSquare.layer.borderWidth = 5.0
-			capSquare.layer.borderColor = CGColor.init(red: 0, green: 0, blue: 255, alpha: 1)
+			capSquare.layer.borderColor = CGColor(red: 10.0/255.0, green: 122.0/255.0, blue: 1.0, alpha: 1.0)
 			return capSquare
 		}()
 	}

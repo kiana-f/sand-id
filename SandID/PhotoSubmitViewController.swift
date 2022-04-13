@@ -8,6 +8,7 @@
 import UIKit
 import BoxSDK
 import CoreLocation
+import FirebaseStorage
 
 class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate {
 	
@@ -77,6 +78,7 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 		}
 	}
 	
+	// retrieves current location of device
 	private func getCurrentLocation() {
 		locationManager.requestLocation()
 	}
@@ -85,18 +87,26 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 	private func uploadImage() {
 		let data: Data = capturedImage.pngData()!
 		
-		let token = ProcessInfo.processInfo.environment["BOX_API_TOKEN"]!
-		let client = BoxSDK.getClient(token: token)
-		let fileName = "\(String(describing: nameField.text!))_\(String(describing: locationField.text!)).png"
-		client.files.upload(data: data, name: fileName, parentId: "159741120027") { (result: Result<File, BoxSDKError>) in
-			guard case let .success(file) = result else {
-				print("Error uploading file")
+		let storage = Storage.storage()
+		let storageRef = storage.reference()
+		
+		let fileName = "\(String(describing: nameField.text!))_\(String(describing: locationField.text!))"
+		let imageRef = storageRef.child("SandID/\(fileName).png")
+		
+		// Create file metadata including the content type
+		let metadata = StorageMetadata()
+		metadata.contentType = "image/png"
+		
+		// upload data
+		imageRef.putData(data, metadata: metadata) { (meta, error) in
+			guard let meta2 = meta else {
+				print("ERROR")
+				print(error.debugDescription)
 				return
 			}
+			print("Upload successful")
 		}
-		
 		returnToInitialVC()
-		
 	}
 	
 	//Return to intial vc after uploading photo

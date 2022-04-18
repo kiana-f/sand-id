@@ -53,7 +53,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "BOX_API_TOKEN"
-            value = "6bnxrJGf3ZTK81pe5V7iEDdFTR200lxZ"
+            value = "mTImNhPG91kD9gVbx8IgWgOSfET7HHdL"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

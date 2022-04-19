@@ -71,7 +71,6 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 	
 	//button action for uploading image
 	@IBAction func onUploadData(_ sender: Any) {
-		print("touched upload button")
 		let locationEmpty = locationField.text == ""
 		let nameEmpty = nameField.text == ""
 		

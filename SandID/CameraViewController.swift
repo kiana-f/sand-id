@@ -234,7 +234,6 @@ class CameraViewController: UIViewController {
 	
 	// remove image view and starts new capture session
 	@objc private func tapRetakePhoto() {
-		print("tapped retake photo button")
 		imageView.removeFromSuperview()
 		view.addSubview(captureSquare)
 		view.addSubview(shutterButton)
@@ -247,7 +246,6 @@ class CameraViewController: UIViewController {
 	
 	// proceed with captured photo
 	@objc private func onSubmitPhoto() {
-		print("want to submit photo")
 		if let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "PhotoSubmitVC") as? PhotoSubmitViewController {
 			print("got vc")
 			vc.capturedImage = capturedImage

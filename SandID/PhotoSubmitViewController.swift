@@ -26,6 +26,13 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 	let locationManager = CLLocationManager()
 	var storage: Storage!
 	var storageReference: StorageReference!
+	
+	// pop up window displaying photo specifications
+	private let popUpWindow: PopUpWindow = {
+		let windowText = "Upload successful!"
+		let window = PopUpWindow(title: "Status", text: windowText, buttontext: "OK")
+		return window
+	}()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,14 +71,14 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 		print("Failed to get current location")
 	}
 	
-	//button action for using current location
+	// button action for using current location
 	@IBAction func onUseCurrLocation(_ sender: Any) {
 		checkLocationPermissions()
+		locationField.resignFirstResponder()
 	}
 	
 	//button action for uploading image
 	@IBAction func onUploadData(_ sender: Any) {
-		print("touched upload button")
 		let locationEmpty = locationField.text == ""
 		let nameEmpty = nameField.text == ""
 		
@@ -142,21 +149,24 @@ class PhotoSubmitViewController: UIViewController, UITextFieldDelegate, CLLocati
 				guard let meta2 = meta else {
 					print("ERROR")
 					print(error.debugDescription)
+					let errorPopUp = PopUpWindow(title: "Error", text: error.debugDescription, buttontext: "Dismiss")
+					self.present(errorPopUp, animated: true, completion: nil)
 					return
 				}
-				print("Upload successful")
+				self.returnToInitialVC()
 			}
-			self.returnToInitialVC()
 		}
 	}
 	
 	// retrieves current location of device
 	private func getCurrentLocation() {
+		locationField.text = "Retrieving location..."
 		locationManager.requestLocation()
 	}
 	
-	//Return to intial vc after uploading photo
+	//Return to intial vc after successful upload of photo
 	private func returnToInitialVC() {
+		self.present(popUpWindow, animated: true, completion: nil)
 		let navigator = self.navigationController
 		navigator?.popToRootViewController(animated: true)
 	}

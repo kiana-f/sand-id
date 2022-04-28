@@ -8,7 +8,6 @@
 import UIKit
 import AVFoundation
 
-
 class ViewController: UIViewController {
 
 	@IBOutlet var openCameraButton: UIButton!
@@ -26,8 +25,6 @@ class ViewController: UIViewController {
 			cameraVC.delegate = self
 		}
 	}
-	
-
 }
 
 

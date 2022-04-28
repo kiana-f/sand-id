@@ -28,11 +28,9 @@ class PopUpWindow: UIViewController {
 		fatalError("init(coder:) has not been implemented")
 	}
 	
-	
 	@objc func dismissView(){
 		self.dismiss(animated: true, completion: nil)
 	}
-
 }
 
 private class PopUpWindowView: UIView {
@@ -83,7 +81,6 @@ private class PopUpWindowView: UIView {
 		// Add the popupView(box) in the PopUpWindowView (semi-transparent background)
 		addSubview(popupView)
 		
-		
 		// PopupView constraints
 		popupView.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
@@ -101,7 +98,6 @@ private class PopUpWindowView: UIView {
 			popupTitle.heightAnchor.constraint(equalToConstant: 55)
 			])
 		
-		
 		// PopupText constraints
 		popupText.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
@@ -112,7 +108,6 @@ private class PopUpWindowView: UIView {
 			popupText.bottomAnchor.constraint(equalTo: popupButton.topAnchor, constant: -8)
 			])
 
-		
 		// PopupButton constraints
 		popupButton.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
@@ -121,11 +116,9 @@ private class PopUpWindowView: UIView {
 			popupButton.trailingAnchor.constraint(equalTo: popupView.trailingAnchor, constant: -BorderWidth),
 			popupButton.bottomAnchor.constraint(equalTo: popupView.bottomAnchor, constant: -BorderWidth)
 			])
-		
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
-	
 }
